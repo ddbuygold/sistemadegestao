@@ -65,6 +65,10 @@
           <button onclick="mudarAba('produtos')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn" data-aba="produtos">💎 Cadastro de Produtos</button>
           <button onclick="mudarAba('estoque')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn" data-aba="estoque">📦 Controle de Estoque</button>
           <button onclick="mudarAba('declaracao')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn" data-aba="declaracao">📄 Declaração de Propriedade</button>
+          <button onclick="mudarAba('recibo')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn" data-aba="recibo">📝 Recibo de Descravação</button>
+          <button onclick="mudarAba('declaracao-endereco')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn" data-aba="declaracao-endereco">🏠 Declaração de Endereço</button>
+          <button onclick="mudarAba('relatorios')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn" data-aba="relatorios">📊 Relatórios</button>
+          <button onclick="mudarAba('usuarios')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn" data-aba="usuarios">⚙️ Cadastro de Usuários</button>
         </nav>
       </div>
 
@@ -144,6 +148,21 @@
           <button onclick="abrirModalEntradaEstoque()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">+ Registrar Entrada</button>
         </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h4 class="text-xs font-semibold uppercase text-slate-500">Total de Peças em Estoque</h4>
+            <p id="estTotalPecas" class="text-2xl font-bold text-slate-900 mt-2">0</p>
+          </div>
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h4 class="text-xs font-semibold uppercase text-slate-500">Peso Total Acumulado</h4>
+            <p id="estTotalPeso" class="text-2xl font-bold text-amber-600 mt-2">0.00 g</p>
+          </div>
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h4 class="text-xs font-semibold uppercase text-slate-500">Entradas Registradas</h4>
+            <p id="estTotalEntradas" class="text-2xl font-bold text-slate-900 mt-2">0</p>
+          </div>
+        </div>
+
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <table class="w-full text-left border-collapse text-sm">
             <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-semibold">
@@ -167,7 +186,10 @@
             <h2 class="text-xl font-bold text-slate-900">Declaração de Propriedade</h2>
             <p class="text-xs text-slate-500">Termo de Transferência de Titularidade.</p>
           </div>
-          <button onclick="window.print()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">🖨️ Imprimir / PDF</button>
+          <div class="flex gap-2">
+            <button onclick="abrirHistoricoDeclaracao()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-300">📜 Histórico</button>
+            <button onclick="salvarEImprimirDeclaracao()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">🖨️ Salvar e Imprimir / PDF</button>
+          </div>
         </div>
 
         <div class="bg-white p-10 rounded-xl shadow-sm border border-slate-200 max-w-4xl mx-auto space-y-6 font-sans text-slate-800">
@@ -178,10 +200,11 @@
               </td>
               <td class="border border-slate-900 p-4 text-center w-3/5">
                 <h2 class="text-base font-bold uppercase m-0">DECLARAÇÃO DE PROPRIEDADE</h2>
+                <h3 class="text-xs font-semibold text-slate-600 m-1">Termo de Transferência de Titularidade</h3>
               </td>
               <td class="border border-slate-900 p-3 text-center w-1/5">
                 <span class="text-[11px] font-bold block">N° FORMULÁRIO</span>
-                <input type="text" id="numFormulario" value="001/2026" readonly class="w-full text-center font-bold text-xs bg-transparent border-none">
+                <input type="text" id="numFormulario" readonly class="w-full text-center font-bold text-xs bg-transparent border-none">
               </td>
             </tr>
           </table>
@@ -196,13 +219,268 @@
           <div class="grid grid-cols-12 border border-slate-900 p-3 gap-3 text-xs">
             <div class="col-span-8 flex flex-col">
               <label class="font-bold text-[11px] uppercase mb-1">Nome Completo:</label>
-              <input type="text" id="vendedorNome" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+              <input type="text" id="vendedorNome" placeholder="Nome completo do vendedor" class="border-b border-slate-400 bg-transparent outline-none pb-1">
             </div>
             <div class="col-span-4 flex flex-col">
               <label class="font-bold text-[11px] uppercase mb-1">CPF / CNPJ:</label>
               <input type="text" id="vendedorCpf" class="border-b border-slate-400 bg-transparent outline-none pb-1">
             </div>
+            <div class="col-span-8 flex flex-col">
+              <label class="font-bold text-[11px] uppercase mb-1">Endereço:</label>
+              <input type="text" id="vendedorEndereco" placeholder="Rua / Avenida" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+            </div>
+            <div class="col-span-4 flex flex-col">
+              <label class="font-bold text-[11px] uppercase mb-1">RG:</label>
+              <input type="text" id="vendedorRg" placeholder="RG" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+            </div>
+            <div class="col-span-4 flex flex-col">
+              <label class="font-bold text-[11px] uppercase mb-1">Bairro:</label>
+              <input type="text" id="vendedorBairro" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+            </div>
+            <div class="col-span-2 flex flex-col">
+              <label class="font-bold text-[11px] uppercase mb-1">N°:</label>
+              <input type="text" id="vendedorNumero" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+            </div>
+            <div class="col-span-3 flex flex-col">
+              <label class="font-bold text-[11px] uppercase mb-1">Compl:</label>
+              <input type="text" id="vendedorCompl" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+            </div>
+            <div class="col-span-3 flex flex-col">
+              <label class="font-bold text-[11px] uppercase mb-1">Estado:</label>
+              <input type="text" id="vendedorEstado" value="CE" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+            </div>
           </div>
+
+          <div class="border border-slate-900 p-3 text-xs leading-relaxed bg-slate-50 text-justify">
+            Eu, <b id="declNome">[Nome do Vendedor]</b>, maior de 21 anos, declaro pelo presente instrumento, ser proprietário legal dos itens descritos abaixo, e que todas as informações são legítimas e atuais, sob as penas da lei.<br><br>
+            Declaro que transfiro todos os direitos, domínio, posse e fruição relacionados aos bens objetos do contrato para <b>D&D INDÚSTRIA E COMÉRCIO DE ROUPAS E ACESSÓRIOS LTDA, CNPJ: 18.287.630/0003-16</b>, estando isento de qualquer responsabilidade legal e penal.
+          </div>
+
+          <table class="w-full border-collapse border border-slate-900 text-xs">
+            <thead>
+              <tr class="bg-slate-200">
+                <th class="border border-slate-900 p-1.5 w-1/2">Descrição</th>
+                <th class="border border-slate-900 p-1.5 w-1/6">Qtde</th>
+                <th class="border border-slate-900 p-1.5 w-1/6">Grama</th>
+                <th class="border border-slate-900 p-1.5 w-1/6">Valor (R$)</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyItensDeclaracao"></tbody>
+            <tfoot>
+              <tr style="font-weight: bold; background-color: #f1f5f9;">
+                <td colspan="3" class="border border-slate-900 p-2 text-right">TOTAL:</td>
+                <td class="border border-slate-900 p-2 text-center"><input type="text" id="totalValor" readonly class="w-full font-bold text-center bg-transparent border-none"></td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div class="text-xs font-bold text-slate-800 pt-2">
+            FORMA DE PAGAMENTO:<br>
+            Estou ciente que será emitida Nota Fiscal em meu nome.
+          </div>
+
+          <div class="border border-slate-900 grid grid-cols-12 text-xs">
+            <div class="col-span-4 border-r border-b border-slate-900 p-2 flex flex-col">
+              <label class="font-bold text-[10px] uppercase">Banco:</label>
+              <input type="text" id="pgBanco" class="bg-transparent border-none outline-none text-xs mt-1">
+            </div>
+            <div class="col-span-3 border-r border-b border-slate-900 p-2 flex flex-col">
+              <label class="font-bold text-[10px] uppercase">Agência:</label>
+              <input type="text" id="pgAgencia" class="bg-transparent border-none outline-none text-xs mt-1">
+            </div>
+            <div class="col-span-5 border-b border-slate-900 p-2 flex flex-col">
+              <label class="font-bold text-[10px] uppercase">C/C ou Poupança:</label>
+              <input type="text" id="pgCc" class="bg-transparent border-none outline-none text-xs mt-1">
+            </div>
+            <div class="col-span-12 p-2 flex flex-col">
+              <label class="font-bold text-[10px] uppercase">Chave PIX:</label>
+              <input type="text" id="pgPix" placeholder="Chave PIX" class="bg-transparent border-none outline-none text-xs mt-1">
+            </div>
+          </div>
+
+          <div class="flex justify-between items-end pt-12 text-xs">
+            <div><span id="cidadeData">Fortaleza, </span></div>
+            <div class="border-t border-slate-900 w-64 text-center pt-1 font-bold">Assinatura cliente</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABA: RECIBO DE DESCRAVAÇÃO -->
+      <section id="aba-recibo" class="aba-conteudo hidden space-y-6">
+        <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200 no-print">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Recibo & Autorização de Descravação</h2>
+            <p class="text-xs text-slate-500">Gerencie, limpe os campos ou imprima seus recibos.</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="abrirHistoricoRecibo()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-300">📜 Histórico</button>
+            <button onclick="imprimirESalvarRecibo()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">🖨️ Imprimir / Salvar PDF</button>
+          </div>
+        </div>
+
+        <div class="bg-white p-10 rounded-xl shadow-sm border border-slate-200 max-w-4xl mx-auto space-y-6 text-slate-800 font-sans">
+          <div class="flex justify-between items-start border-b-2 border-amber-600 pb-4">
+            <div>
+              <h1 class="text-xl font-bold uppercase m-0 text-slate-900">Recibo de Recebimento e Autorização</h1>
+              <p class="text-xs font-bold text-amber-600 mt-1 uppercase">SERVIÇO ESPECIALIZADO DE DESCRAVAÇÃO DE PEDRAS</p>
+            </div>
+            <div class="text-right space-y-1">
+              <div><label class="text-xs font-bold text-slate-600">Nº do Recibo:</label> <input type="text" id="numRecibo" readonly class="w-28 text-center font-bold text-xs bg-slate-200 border rounded p-1"></div>
+              <div><label class="text-xs font-bold text-slate-600">Data:</label> <input type="date" id="dataRecibo" class="text-xs bg-amber-50 border rounded p-1"></div>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 border border-slate-200 p-3 rounded-lg grid grid-cols-2 gap-2 text-xs">
+            <div><strong>RAZÃO SOCIAL:</strong> D&D IND E COMÉRCIO DE ROUPAS E ACESSÓRIOS LTDA</div>
+            <div><strong>CNPJ:</strong> 18.287.630/0003-16</div>
+            <div><strong>ENDEREÇO:</strong> Av. Dom Luis, 1200 - Loja 116, Cep: 60.160-196</div>
+            <div><strong>CIDADE / UF:</strong> Fortaleza - CE</div>
+          </div>
+
+          <div>
+            <div class="bg-slate-100 p-2 font-bold text-xs rounded uppercase mb-2 text-slate-700">1. Dados do Proprietário (Cliente)</div>
+            <div class="mb-3 no-print">
+              <label class="text-xs font-semibold block mb-1">Selecionar Cliente da Nuvem:</label>
+              <select id="recClienteSelect" onchange="preencherDadosClienteRecibo()" class="w-full border border-slate-300 p-1.5 rounded text-xs bg-amber-50">
+                <option value="">Selecione o cliente...</option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-4 gap-3 text-xs">
+              <div class="col-span-2 flex flex-col gap-1">
+                <label class="font-semibold text-slate-600">Nome Completo do Cliente:</label>
+                <input type="text" id="cliNome" placeholder="Digite o nome do cliente" class="p-2 border rounded bg-amber-50">
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="font-semibold text-slate-600">CPF / RG:</label>
+                <input type="text" id="cliDoc" placeholder="000.000.000-00" class="p-2 border rounded bg-amber-50">
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="font-semibold text-slate-600">Telefone / WhatsApp:</label>
+                <input type="text" id="cliTel" placeholder="(85) 90000-0000" class="p-2 border rounded bg-amber-50">
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="bg-slate-100 p-2 font-bold text-xs rounded uppercase mb-2 text-slate-700">2. Especificação da Peça e Serviço</div>
+            <table class="w-full border-collapse border border-slate-300 text-xs">
+              <thead>
+                <tr class="bg-slate-50 text-slate-700">
+                  <th class="border p-2 w-16 text-center">Qtd</th>
+                  <th class="border p-2">Descrição da Peça (Tipo, Modelo)</th>
+                  <th class="border p-2 w-28 text-center">Teor do Ouro</th>
+                  <th class="border p-2 w-32">Cor do Ouro</th>
+                  <th class="border p-2 w-24">Peso Aprox.</th>
+                  <th class="border p-2">Pedras a Descravar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="border p-1 text-center"><input type="number" id="pecaQtd1" value="1" class="w-full text-center border-none p-1 bg-amber-50 rounded"></td>
+                  <td class="border p-1"><input type="text" id="pecaDesc1" placeholder="Ex: Anel Solitário..." class="w-full border-none p-1 bg-amber-50 rounded"></td>
+                  <td class="border p-1 text-center"><input type="text" value="18k (750)" readonly class="w-full font-bold text-center border-none bg-slate-200 p-1 rounded"></td>
+                  <td class="border p-1">
+                    <select id="pecaCor1" class="w-full border-none p-1 bg-amber-50 rounded">
+                      <option>Amarelo</option><option>Branco</option><option>Rosé</option>
+                    </select>
+                  </td>
+                  <td class="border p-1"><input type="text" id="pecaPeso1" placeholder="0.0 g" class="w-full border-none p-1 bg-amber-50 rounded"></td>
+                  <td class="border p-1"><input type="text" id="pecaPedras1" placeholder="Ex: Diamante" class="w-full border-none p-1 bg-amber-50 rounded"></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div class="md:col-span-2 flex flex-col gap-1">
+                <label class="text-xs font-semibold text-slate-600">Observações do Recebimento:</label>
+                <textarea id="obsPeca" rows="2" placeholder="Riscos, marcas de uso..." class="p-2 border rounded bg-amber-50 text-xs w-full"></textarea>
+              </div>
+              <div class="flex flex-col gap-3">
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-semibold text-slate-600">Valor Estimado:</label>
+                  <input type="text" id="valorServico" placeholder="R$ 0,00" class="p-1.5 border rounded bg-amber-50 text-xs font-bold">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between pt-12 text-center text-xs">
+            <div class="w-5/12 border-t border-slate-900 pt-1 font-semibold">Assinatura do Proprietário (Cliente)</div>
+            <div class="w-5/12 border-t border-slate-900 pt-1 font-semibold">D&D IND E COMÉRCIO DE ROUPAS E ACESSÓRIOS LTDA</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABA: DECLARAÇÃO DE ENDEREÇO -->
+      <section id="aba-declaracao-endereco" class="aba-conteudo hidden space-y-6">
+        <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200 no-print">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Declaração de Endereço</h2>
+            <p class="text-xs text-slate-500">Formulário para comprovação de residência.</p>
+          </div>
+          <button onclick="window.print()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">🖨️ Imprimir Declaração</button>
+        </div>
+
+        <div class="bg-white p-12 rounded-xl shadow-sm border border-slate-200 max-w-4xl mx-auto space-y-6 text-slate-800 font-sans text-sm leading-relaxed">
+          <div class="text-center space-y-2 pb-4 border-b">
+            <h2 class="text-lg font-bold uppercase tracking-wide">DECLARAÇÃO DE ENDEREÇO</h2>
+          </div>
+          <div class="text-justify space-y-4">
+            <p>
+              DECLARO, para fins de comprovação de residência, sob as penas da Lei nº 7.115/83, que o(a) Sr.(a) 
+              <input type="text" placeholder="Nome completo do declarante" class="border-b border-slate-400 bg-amber-50 px-2 py-0.5 outline-none font-semibold w-72">, 
+              inscrito(a) no CPF nº <input type="text" placeholder="000.000.000-00" class="border-b border-slate-400 bg-amber-50 px-2 py-0.5 outline-none w-40">, é residente e domiciliado(a) no endereço: 
+              <input type="text" placeholder="Rua, Número, Bairro, Cidade - UF, CEP" class="border-b border-slate-400 bg-amber-50 px-2 py-0.5 outline-none w-full mt-2 font-semibold">.
+            </p>
+          </div>
+          <div class="pt-16 text-center">
+            <div class="inline-block border-t border-slate-900 w-80 pt-1 font-bold">Assinatura do(a) Declarante</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABA: RELATÓRIOS -->
+      <section id="aba-relatorios" class="aba-conteudo hidden space-y-6">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+          <h2 class="text-xl font-bold text-slate-900">Relatórios do Sistema</h2>
+          <p class="text-xs text-slate-500">Selecione o relatório que deseja visualizar e imprimir.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+            <div class="p-6 border border-slate-200 rounded-xl bg-slate-50 space-y-4">
+              <h3 class="font-bold text-slate-800 text-base">👥 Relatório de Clientes</h3>
+              <p class="text-xs text-slate-600">Lista completa de clientes cadastrados na nuvem.</p>
+              <button onclick="imprimirRelatorioClientes()" class="px-4 py-2 gold-gradient text-white rounded-lg text-xs font-semibold shadow hover:opacity-95">🖨️ Imprimir Clientes</button>
+            </div>
+            <div class="p-6 border border-slate-200 rounded-xl bg-slate-50 space-y-4">
+              <h3 class="font-bold text-slate-800 text-base">📦 Relatório de Estoque</h3>
+              <p class="text-xs text-slate-600">Resumo de entradas e peso total em estoque.</p>
+              <button onclick="imprimirRelatorioEstoque()" class="px-4 py-2 gold-gradient text-white rounded-lg text-xs font-semibold shadow hover:opacity-95">🖨️ Imprimir Estoque</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABA: CADASTRO DE USUÁRIOS -->
+      <section id="aba-usuarios" class="aba-conteudo hidden space-y-6">
+        <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Cadastro de Usuários & Permissões</h2>
+            <p class="text-xs text-slate-500">Gerencie acessos e senhas na nuvem.</p>
+          </div>
+          <button onclick="abrirModalUsuario()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">+ Novo Usuário</button>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-semibold">
+              <tr>
+                <th class="p-4">Nome</th>
+                <th class="p-4">CPF</th>
+                <th class="p-4">Status</th>
+                <th class="p-4 text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaUsuarios" class="divide-y divide-slate-200"></tbody>
+          </table>
         </div>
       </section>
 
@@ -259,6 +537,50 @@
     </div>
   </div>
 
+  <!-- Modal Usuário -->
+  <div id="modalUsuario" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4">
+      <h3 class="text-lg font-bold text-slate-900">Novo Usuário</h3>
+      <div class="space-y-3 text-sm">
+        <div><label class="block text-xs font-semibold uppercase mb-1">Nome</label><input type="text" id="userNome" class="w-full p-2 border rounded"></div>
+        <div><label class="block text-xs font-semibold uppercase mb-1">CPF</label><input type="text" id="userCpf" class="w-full p-2 border rounded"></div>
+        <div><label class="block text-xs font-semibold uppercase mb-1">Senha</label><input type="password" id="userSenha" class="w-full p-2 border rounded"></div>
+      </div>
+      <div class="flex justify-end space-x-3 pt-4 border-t">
+        <button onclick="fecharModalUsuario()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded text-sm">Cancelar</button>
+        <button onclick="salvarUsuarioNuvem()" class="px-4 py-2 gold-gradient text-white rounded text-sm">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Histórico Declaração -->
+  <div id="modalHistoricoDeclaracao" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+      <h3 class="text-lg font-bold text-slate-900">Histórico de Declarações</h3>
+      <table class="w-full text-left border-collapse text-sm">
+        <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-semibold">
+          <tr><th class="p-3">N° Formulário</th><th class="p-3">Vendedor</th><th class="p-3">Data</th><th class="p-3">Total</th></tr>
+        </thead>
+        <tbody id="tabelaHistoricoDeclaracao" class="divide-y divide-slate-200"></tbody>
+      </table>
+      <div class="flex justify-end pt-4 border-t"><button onclick="fecharHistoricoDeclaracao()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm">Fechar</button></div>
+    </div>
+  </div>
+
+  <!-- Modal Histórico Recibo -->
+  <div id="modalHistoricoRecibo" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+      <h3 class="text-lg font-bold text-slate-900">Histórico de Recibos</h3>
+      <table class="w-full text-left border-collapse text-sm">
+        <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-semibold">
+          <tr><th class="p-3">Nº Recibo</th><th class="p-3">Data</th><th class="p-3">Cliente</th><th class="p-3">Valor</th></tr>
+        </thead>
+        <tbody id="corpoHistoricoRecibo" class="divide-y divide-slate-200"></tbody>
+      </table>
+      <div class="flex justify-end pt-4 border-t"><button onclick="fecharHistoricoRecibo()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm">Fechar</button></div>
+    </div>
+  </div>
+
   <!-- ================= INTEGRAÇÃO FIREBASE (NUVEM) ================= -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -277,7 +599,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Disponibilizando globais para o sistema
     window.db = db;
     window.fbColl = collection;
     window.fbGet = getDocs;
@@ -285,11 +606,19 @@
     window.fbDel = deleteDoc;
     window.fbDoc = doc;
 
-    // Inicializar carregamento dos dados da nuvem ao abrir
     document.addEventListener("DOMContentLoaded", () => {
       carregarClientes();
       carregarProdutos();
       carregarEstoque();
+      carregarUsuarios();
+      gerarLinhasDeclaracao();
+      gerarNumeroSequencialDeclaracao();
+      gerarNumeroSequencialRecibo();
+      
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('dataRecibo').value = hoje;
+      const opcoesData = { day: 'numeric', month: 'long', year: 'numeric' };
+      document.getElementById('cidadeData').innerText = `Fortaleza, ` + new Date().toLocaleDateString('pt-BR', opcoesData);
     });
   </script>
 
@@ -325,7 +654,9 @@
       if (abaId === 'clientes') carregarClientes();
       if (abaId === 'produtos') carregarProdutos();
       if (abaId === 'estoque') carregarEstoque();
+      if (abaId === 'usuarios') carregarUsuarios();
       if (abaId === 'declaracao') prepararSelectClientesDeclaracao();
+      if (abaId === 'recibo') prepararSelectClientesRecibo();
     }
 
     // CLIENTES
@@ -372,7 +703,7 @@
           tbody.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-4 font-semibold">${c.codigo}</td><td class="p-4">${c.nome}</td><td class="p-4">${c.cpfCnpj}</td><td class="p-4">${c.telefone || '-'}</td><td class="p-4">${c.cidade}/${c.estado}</td><td class="p-4 text-center"><button onclick="excluirRegistro('clientes', '${d.id}')" class="text-red-500 text-xs">Excluir</button></td></tr>`;
         });
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-400">Erro ao carregar dados do Firebase. Verifique sua chave de API.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-400">Erro ao carregar dados do Firebase.</td></tr>`;
       }
     }
 
@@ -446,16 +777,40 @@
     async function carregarEstoque() {
       const tbody = document.getElementById('tabelaEstoque');
       tbody.innerHTML = '';
+      let tp = 0, tpes = 0;
       try {
         const snap = await window.fbGet(window.fbColl(window.db, "estoque"));
         snap.forEach(d => {
           const e = d.data();
+          tp += e.qtd; tpes += e.peso;
           tbody.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-4">${e.data}</td><td class="p-4 font-medium">${e.descricao}</td><td class="p-4">${e.qtd}</td><td class="p-4">${e.peso.toFixed(2)} g</td><td class="p-4">${e.tipoOuro}</td></tr>`;
         });
+        document.getElementById('estTotalPecas').innerText = tp;
+        document.getElementById('estTotalPeso').innerText = tpes.toFixed(2) + ' g';
+        document.getElementById('estTotalEntradas').innerText = snap.size;
       } catch(e) {}
     }
 
-    // DECLARAÇÃO
+    // DECLARAÇÃO DE PROPRIEDADE
+    function gerarLinhasDeclaracao() {
+      const tbody = document.getElementById('tbodyItensDeclaracao');
+      tbody.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        tbody.innerHTML += `
+          <tr>
+            <td class="border border-slate-900 p-1"><input type="text" class="w-full border-none p-1 item-desc" placeholder="Item ${i}"></td>
+            <td class="border border-slate-900 p-1"><input type="number" class="w-full border-none p-1 text-center item-qtd" oninput="calcularTotalDeclaracao()"></td>
+            <td class="border border-slate-900 p-1"><input type="number" step="0.01" class="w-full border-none p-1 text-center item-grama"></td>
+            <td class="border border-slate-900 p-1"><input type="number" step="0.01" class="w-full border-none p-1 text-center item-valor" placeholder="0,00" oninput="calcularTotalDeclaracao()"></td>
+          </tr>`;
+      }
+    }
+
+    function gerarNumeroSequencialDeclaracao() {
+      const ano = new Date().getFullYear();
+      document.getElementById('numFormulario').value = '001/' + ano;
+    }
+
     function prepararSelectClientesDeclaracao() {
       const sel = document.getElementById('decClienteSelect');
       sel.innerHTML = '<option value="">Selecione um cliente...</option>';
@@ -470,6 +825,122 @@
       const [nome, cpf] = val.split('|');
       document.getElementById('vendedorNome').value = nome;
       document.getElementById('vendedorCpf').value = cpf;
+      document.getElementById('declNome').innerText = nome;
+    }
+
+    document.getElementById('vendedorNome')?.addEventListener('input', function() {
+      document.getElementById('declNome').innerText = this.value.trim() || '[Nome do Vendedor]';
+    });
+
+    function calcularTotalDeclaracao() {
+      const vals = document.querySelectorAll('.item-valor');
+      let total = 0;
+      vals.forEach(v => total += parseFloat(v.value) || 0);
+      document.getElementById('totalValor').value = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    async function salvarEImprimirDeclaracao() {
+      const dados = {
+        num: document.getElementById('numFormulario').value,
+        vendedorNome: document.getElementById('vendedorNome').value,
+        total: document.getElementById('totalValor').value,
+        data: new Date().toLocaleDateString('pt-BR')
+      };
+      await window.fbAdd(window.fbColl(window.db, "declaracoes"), dados);
+      window.print();
+    }
+
+    async function abrirHistoricoDeclaracao() {
+      const tbody = document.getElementById('tabelaHistoricoDeclaracao');
+      tbody.innerHTML = '';
+      const snap = await window.fbGet(window.fbColl(window.db, "declaracoes"));
+      snap.forEach(d => {
+        const h = d.data();
+        tbody.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-3">${h.num}</td><td class="p-3">${h.vendedorNome}</td><td class="p-3">${h.data}</td><td class="p-3">${h.total}</td></tr>`;
+      });
+      document.getElementById('modalHistoricoDeclaracao').classList.remove('hidden');
+    }
+    function fecharHistoricoDeclaracao() { document.getElementById('modalHistoricoDeclaracao').classList.add('hidden'); }
+
+    // RECIBO DESCRAVAÇÃO
+    function gerarNumeroSequencialRecibo() {
+      document.getElementById('numRecibo').value = '001/' + new Date().getFullYear();
+    }
+    function prepararSelectClientesRecibo() {
+      const sel = document.getElementById('recClienteSelect');
+      sel.innerHTML = '<option value="">Selecione o cliente...</option>';
+      clientesCache.forEach(c => {
+        sel.innerHTML += `<option value="${c.nome}|${c.cpfCnpj}|${c.telefone}">${c.nome} (${c.cpfCnpj})</option>`;
+      });
+    }
+    function preencherDadosClienteRecibo() {
+      const val = document.getElementById('recClienteSelect').value;
+      if (!val) return;
+      const [nome, doc, tel] = val.split('|');
+      document.getElementById('cliNome').value = nome;
+      document.getElementById('cliDoc').value = doc;
+      document.getElementById('cliTel').value = tel || '';
+    }
+    async function imprimirESalvarRecibo() {
+      const recibo = {
+        num: document.getElementById('numRecibo').value,
+        data: document.getElementById('dataRecibo').value,
+        cliNome: document.getElementById('cliNome').value,
+        valorServico: document.getElementById('valorServico').value
+      };
+      await window.fbAdd(window.fbColl(window.db, "recibos"), recibo);
+      window.print();
+    }
+    async function abrirHistoricoRecibo() {
+      const corpo = document.getElementById('corpoHistoricoRecibo');
+      corpo.innerHTML = '';
+      const snap = await window.fbGet(window.fbColl(window.db, "recibos"));
+      snap.forEach(d => {
+        const r = d.data();
+        corpo.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-3">${r.num}</td><td class="p-3">${r.data}</td><td class="p-3">${r.cliNome}</td><td class="p-3">${r.valorServico}</td></tr>`;
+      });
+      document.getElementById('modalHistoricoRecibo').classList.remove('hidden');
+    }
+    function fecharHistoricoRecibo() { document.getElementById('modalHistoricoRecibo').classList.add('hidden'); }
+
+    // RELATÓRIOS
+    async function imprimirRelatorioClientes() {
+      const win = window.open('', '_blank');
+      let html = `<html><head><title>Relatório Clientes</title><style>body{font-family:Arial;padding:20px;}table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px;}th,td{border:1px solid #ddd;padding:8px;}th{background:#f4f6f8;}</style></head><body><h2>Relatório de Clientes</h2><table><thead><tr><th>Código</th><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th></tr></thead><tbody>`;
+      clientesCache.forEach(c => { html += `<tr><td>${c.codigo}</td><td>${c.nome}</td><td>${c.cpfCnpj}</td><td>${c.telefone||'-'}</td></tr>`; });
+      html += `</tbody></table></body></html>`;
+      win.document.write(html); win.document.close(); win.print();
+    }
+    async function imprimirRelatorioEstoque() {
+      const win = window.open('', '_blank');
+      let html = `<html><head><title>Relatório Estoque</title><style>body{font-family:Arial;padding:20px;}table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px;}th,td{border:1px solid #ddd;padding:8px;}th{background:#f4f6f8;}</style></head><body><h2>Relatório de Estoque</h2><table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Peso</th></tr></thead><tbody>`;
+      const snap = await window.fbGet(window.fbColl(window.db, "estoque"));
+      snap.forEach(d => { const e = d.data(); html += `<tr><td>${e.data}</td><td>${e.descricao}</td><td>${e.qtd}</td><td>${e.peso}g</td></tr>`; });
+      html += `</tbody></table></body></html>`;
+      win.document.write(html); win.document.close(); win.print();
+    }
+
+    // USUÁRIOS
+    function abrirModalUsuario() { document.getElementById('modalUsuario').classList.remove('hidden'); }
+    function fecharModalUsuario() { document.getElementById('modalUsuario').classList.add('hidden'); }
+    async function salvarUsuarioNuvem() {
+      const nome = document.getElementById('userNome').value.trim();
+      const cpf = document.getElementById('userCpf').value.trim();
+      const senha = document.getElementById('userSenha').value.trim();
+      if (!nome || !cpf || !senha) { alert('Preencha todos os campos.'); return; }
+      await window.fbAdd(window.fbColl(window.db, "usuarios"), { nome, cpf, senha, ativo: true });
+      fecharModalUsuario(); carregarUsuarios(); alert('Usuário salvo!');
+    }
+    async function carregarUsuarios() {
+      const tbody = document.getElementById('tabelaUsuarios');
+      tbody.innerHTML = '';
+      try {
+        const snap = await window.fbGet(window.fbColl(window.db, "usuarios"));
+        snap.forEach(d => {
+          const u = d.data();
+          tbody.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-4 font-semibold">${u.nome}</td><td class="p-4">${u.cpf}</td><td class="p-4">Ativo</td><td class="p-4 text-center"><button onclick="excluirRegistro('usuarios', '${d.id}')" class="text-red-500 text-xs">Excluir</button></td></tr>`;
+        });
+      } catch(e) {}
     }
 
     // EXCLUSÃO GENÉRICA
@@ -479,6 +950,7 @@
         if (coluna === 'clientes') carregarClientes();
         if (coluna === 'produtos') carregarProdutos();
         if (coluna === 'estoque') carregarEstoque();
+        if (coluna === 'usuarios') carregarUsuarios();
       }
     }
   </script>
