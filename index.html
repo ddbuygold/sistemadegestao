@@ -13,7 +13,6 @@
     @media print {
       .no-print { display: none !important; }
       body { background: white !important; }
-      .print-only { display: block !important; }
     }
   </style>
 </head>
@@ -24,7 +23,6 @@
     <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 space-y-6">
       <div class="text-center space-y-2">
         <div class="inline-flex justify-center mb-2">
-          <!-- Logo Atualizada -->
           <img src="Logo DD Buy Gold_4.jpg" alt="Logo DD Buy Gold" class="w-24 h-24 object-contain mx-auto rounded-xl shadow-sm" onerror="this.style.display='none';">
         </div>
         <h1 class="text-2xl font-bold tracking-wider text-slate-900 uppercase">DD BUY GOLD</h1>
@@ -41,12 +39,30 @@
           <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Senha</label>
           <input type="password" id="loginSenha" required class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-none text-sm bg-slate-50" placeholder="••••••••">
         </div>
+        <div class="flex items-center justify-between text-xs">
+          <button type="button" onclick="mostrarEsqueciSenha()" class="text-amber-600 hover:underline font-medium">Esqueci minha senha</button>
+        </div>
         <button type="submit" class="w-full py-3 px-4 gold-gradient text-white font-semibold rounded-lg shadow-md hover:opacity-95 transition">Entrar no Sistema</button>
       </form>
+
+      <!-- Formulário de Esqueci Minha Senha -->
+      <div id="boxEsqueciSenha" class="hidden space-y-4 pt-4 border-t border-slate-200">
+        <h3 class="text-sm font-bold text-slate-800">Recuperação de Senha</h3>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Informe seu CPF cadastrado</label>
+          <input type="text" id="recupCpf" oninput="mascaraCpf(this)" placeholder="000.000.000-00" class="w-full px-4 py-2 rounded-lg border border-slate-300 text-sm bg-slate-50">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Nova Senha</label>
+          <input type="password" id="recupNovaSenha" placeholder="Digite a nova senha" class="w-full px-4 py-2 rounded-lg border border-slate-300 text-sm bg-slate-50">
+        </div>
+        <button type="button" onclick="salvarRecuperacaoSenha()" class="w-full py-2 px-4 gold-gradient text-white font-medium rounded-lg text-sm hover:opacity-95 transition">Atualizar Senha</button>
+        <button type="button" onclick="voltarLogin()" class="w-full text-center text-xs text-slate-500 hover:underline pt-2">Voltar ao login</button>
+      </div>
     </div>
   </div>
 
-  <!-- ================= SISTEMA PRINCIPAL (APÓS LOGIN) ================= -->
+  <!-- ================= SISTEMA PRINCIPAL ================= -->
   <div id="appSistema" class="hidden min-h-screen flex">
     
     <!-- Menu Lateral -->
@@ -61,7 +77,14 @@
         </div>
 
         <nav id="menuLateralNav" class="p-4 space-y-1 text-sm font-medium">
-          <!-- Menus injetados dinamicamente baseados nas permissões do usuário logado -->
+          <button onclick="mudarAba('clientes')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn whitespace-nowrap" data-aba="clientes">👥 Cadastro de Clientes</button>
+          <button onclick="mudarAba('produtos')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn whitespace-nowrap" data-aba="produtos">💎 Cadastro de Produtos</button>
+          <button onclick="mudarAba('estoque')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn whitespace-nowrap" data-aba="estoque">📦 Controle de Estoque</button>
+          <button onclick="mudarAba('declaracao')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn whitespace-nowrap" data-aba="declaracao">📄 Declaração de Propriedade</button>
+          <button onclick="mudarAba('recibo')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn whitespace-nowrap" data-aba="recibo">📝 Recibo de Descravação</button>
+          <button onclick="mudarAba('declaracao-endereco')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn whitespace-nowrap" data-aba="declaracao-endereco">🏠 Declaração de Endereço</button>
+          <button onclick="mudarAba('relatorios')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn whitespace-nowrap" data-aba="relatorios">📊 Relatórios</button>
+          <button onclick="mudarAba('usuarios')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn whitespace-nowrap" data-aba="usuarios">⚙️ Cadastro de Usuários</button>
         </nav>
       </div>
 
@@ -69,7 +92,6 @@
         <div class="flex items-center justify-between">
           <span class="text-xs text-slate-400">Logado: <strong id="userLogadoNome" class="text-white">Admin</strong></span>
         </div>
-        <button onclick="abrirModalTrocarSenhaPropria()" class="w-full py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition">🔑 Alterar Minha Senha</button>
         <button onclick="fazerLogout()" class="w-full py-2 px-3 bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white rounded-lg text-xs font-semibold transition">Sair do Sistema</button>
       </div>
     </aside>
@@ -82,7 +104,7 @@
         <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
           <div>
             <h2 class="text-xl font-bold text-slate-900">Cadastro de Clientes (Nuvem)</h2>
-            <p class="text-xs text-slate-500">Clientes sincronizados em tempo real.</p>
+            <p class="text-xs text-slate-500">Gerencie informações cadastrais completas.</p>
           </div>
           <button onclick="abrirModalCliente()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">+ Novo Cliente</button>
         </div>
@@ -94,14 +116,13 @@
                 <th class="p-4">Código</th>
                 <th class="p-4">Nome / Razão Social</th>
                 <th class="p-4">CPF / CNPJ</th>
+                <th class="p-4">E-mail</th>
                 <th class="p-4">Telefone</th>
-                <th class="p-4">Cidade/UF</th>
+                <th class="p-4">Endereço Completo</th>
                 <th class="p-4 text-center">Ações</th>
               </tr>
             </thead>
-            <tbody id="tabelaClientes" class="divide-y divide-slate-200">
-              <tr><td colspan="6" class="p-4 text-center text-slate-400">Conectando à nuvem...</td></tr>
-            </tbody>
+            <tbody id="tabelaClientes" class="divide-y divide-slate-200"></tbody>
           </table>
         </div>
       </section>
@@ -180,7 +201,10 @@
             <h2 class="text-xl font-bold text-slate-900">Declaração de Propriedade</h2>
             <p class="text-xs text-slate-500">Termo de Transferência de Titularidade.</p>
           </div>
-          <button onclick="window.print()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">🖨️ Imprimir / PDF</button>
+          <div class="flex gap-2">
+            <button onclick="abrirHistoricoDeclaracao()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-300">📜 Histórico</button>
+            <button onclick="salvarEImprimirDeclaracao()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">🖨️ Salvar e Imprimir / PDF</button>
+          </div>
         </div>
 
         <div class="bg-white p-10 rounded-xl shadow-sm border border-slate-200 max-w-4xl mx-auto space-y-6 font-sans text-slate-800">
@@ -191,10 +215,11 @@
               </td>
               <td class="border border-slate-900 p-4 text-center w-3/5">
                 <h2 class="text-base font-bold uppercase m-0">DECLARAÇÃO DE PROPRIEDADE</h2>
+                <h3 class="text-xs font-semibold text-slate-600 m-1">Termo de Transferência de Titularidade</h3>
               </td>
               <td class="border border-slate-900 p-3 text-center w-1/5">
                 <span class="text-[11px] font-bold block">N° FORMULÁRIO</span>
-                <input type="text" id="numFormulario" value="001/2026" readonly class="w-full text-center font-bold text-xs bg-transparent border-none">
+                <input type="text" id="numFormulario" readonly class="w-full text-center font-bold text-xs bg-transparent border-none">
               </td>
             </tr>
           </table>
@@ -209,27 +234,209 @@
           <div class="grid grid-cols-12 border border-slate-900 p-3 gap-3 text-xs">
             <div class="col-span-8 flex flex-col">
               <label class="font-bold text-[11px] uppercase mb-1">Nome Completo:</label>
-              <input type="text" id="vendedorNome" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+              <input type="text" id="vendedorNome" placeholder="Nome completo do vendedor" class="border-b border-slate-400 bg-transparent outline-none pb-1">
             </div>
             <div class="col-span-4 flex flex-col">
               <label class="font-bold text-[11px] uppercase mb-1">CPF / CNPJ:</label>
-              <input type="text" id="vendedorCpf" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+              <input type="text" id="vendedorCpf" oninput="mascaraCpf(this)" placeholder="000.000.000-00" class="border-b border-slate-400 bg-transparent outline-none pb-1">
             </div>
+            <div class="col-span-8 flex flex-col">
+              <label class="font-bold text-[11px] uppercase mb-1">Endereço:</label>
+              <input type="text" id="vendedorEndereco" placeholder="Rua / Avenida" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+            </div>
+            <div class="col-span-4 flex flex-col">
+              <label class="font-bold text-[11px] uppercase mb-1">RG:</label>
+              <input type="text" id="vendedorRg" placeholder="RG" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+            </div>
+            <div class="col-span-4 flex flex-col">
+              <label class="font-bold text-[11px] uppercase mb-1">Bairro:</label>
+              <input type="text" id="vendedorBairro" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+            </div>
+            <div class="col-span-2 flex flex-col">
+              <label class="font-bold text-[11px] uppercase mb-1">N°:</label>
+              <input type="text" id="vendedorNumero" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+            </div>
+            <div class="col-span-3 flex flex-col">
+              <label class="font-bold text-[11px] uppercase mb-1">Compl:</label>
+              <input type="text" id="vendedorCompl" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+            </div>
+            <div class="col-span-3 flex flex-col">
+              <label class="font-bold text-[11px] uppercase mb-1">Estado:</label>
+              <input type="text" id="vendedorEstado" value="CE" class="border-b border-slate-400 bg-transparent outline-none pb-1">
+            </div>
+          </div>
+
+          <div class="border border-slate-900 p-3 text-xs leading-relaxed bg-slate-50 text-justify">
+            Eu, <b id="declNome">[Nome do Vendedor]</b>, maior de 21 anos, declaro pelo presente instrumento, ser proprietário legal dos itens descritos abaixo, e que todas as informações são legítimas e atuais, sob as penas da lei.<br><br>
+            Declaro que transfiro todos os direitos, domínio, posse e fruição relacionados aos bens objetos do contrato para <b>D&D INDÚSTRIA E COMÉRCIO DE ROUPAS E ACESSÓRIOS LTDA, CNPJ: 18.287.630/0003-16</b>, estando isento de qualquer responsabilidade legal e penal.
+          </div>
+
+          <table class="w-full border-collapse border border-slate-900 text-xs">
+            <thead>
+              <tr class="bg-slate-200">
+                <th class="border border-slate-900 p-1.5 w-1/2">Descrição</th>
+                <th class="border border-slate-900 p-1.5 w-1/6">Qtde</th>
+                <th class="border border-slate-900 p-1.5 w-1/6">Grama</th>
+                <th class="border border-slate-900 p-1.5 w-1/6">Valor (R$)</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyItensDeclaracao"></tbody>
+            <tfoot>
+              <tr style="font-weight: bold; background-color: #f1f5f9;">
+                <td colspan="3" class="border border-slate-900 p-2 text-right">TOTAL:</td>
+                <td class="border border-slate-900 p-2 text-center"><input type="text" id="totalValor" readonly class="w-full font-bold text-center bg-transparent border-none"></td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div class="text-xs font-bold text-slate-800 pt-2">
+            FORMA DE PAGAMENTO:<br>
+            Estou ciente que será emitida Nota Fiscal em meu nome.
+          </div>
+
+          <div class="border border-slate-900 grid grid-cols-12 text-xs">
+            <div class="col-span-4 border-r border-b border-slate-900 p-2 flex flex-col">
+              <label class="font-bold text-[10px] uppercase">Banco:</label>
+              <input type="text" id="pgBanco" class="bg-transparent border-none outline-none text-xs mt-1">
+            </div>
+            <div class="col-span-3 border-r border-b border-slate-900 p-2 flex flex-col">
+              <label class="font-bold text-[10px] uppercase">Agência:</label>
+              <input type="text" id="pgAgencia" class="bg-transparent border-none outline-none text-xs mt-1">
+            </div>
+            <div class="col-span-5 border-b border-slate-900 p-2 flex flex-col">
+              <label class="font-bold text-[10px] uppercase">C/C ou Poupança:</label>
+              <input type="text" id="pgCc" class="bg-transparent border-none outline-none text-xs mt-1">
+            </div>
+            <div class="col-span-12 p-2 flex flex-col">
+              <label class="font-bold text-[10px] uppercase">Chave PIX:</label>
+              <input type="text" id="pgPix" placeholder="Chave PIX" class="bg-transparent border-none outline-none text-xs mt-1">
+            </div>
+          </div>
+
+          <div class="flex justify-between items-end pt-12 text-xs">
+            <div><span id="cidadeData">Fortaleza, </span></div>
+            <div class="border-t border-slate-900 w-64 text-center pt-1 font-bold">Assinatura cliente</div>
           </div>
         </div>
       </section>
 
-      <!-- ABA: RECIBO DE DESCRAVAÇÃO -->
+      <!-- ABA: RECIBO DE DESCRAVAÇÃO (COM ITEM 3 RESTAURADO) -->
       <section id="aba-recibo" class="aba-conteudo hidden space-y-6">
         <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200 no-print">
           <div>
             <h2 class="text-xl font-bold text-slate-900">Recibo & Autorização de Descravação</h2>
+            <p class="text-xs text-slate-500">Gerencie e imprima seus recibos de serviços.</p>
           </div>
-          <button onclick="window.print()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">🖨️ Imprimir / PDF</button>
+          <div class="flex gap-2">
+            <button onclick="abrirHistoricoRecibo()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-300">📜 Histórico</button>
+            <button onclick="imprimirESalvarRecibo()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">🖨️ Imprimir / Salvar PDF</button>
+          </div>
         </div>
-        <div class="bg-white p-10 rounded-xl shadow-sm border border-slate-200 max-w-4xl mx-auto space-y-6">
-          <h2 class="text-lg font-bold">Serviço de Descravação de Pedras</h2>
-          <p class="text-xs text-slate-500">Módulo de recibo ativo.</p>
+
+        <div class="bg-white p-10 rounded-xl shadow-sm border border-slate-200 max-w-4xl mx-auto space-y-6 text-slate-800 font-sans">
+          <div class="flex justify-between items-start border-b-2 border-amber-600 pb-4">
+            <div>
+              <h1 class="text-xl font-bold uppercase m-0 text-slate-900">Recibo de Recebimento e Autorização</h1>
+              <p class="text-xs font-bold text-amber-600 mt-1 uppercase">SERVIÇO ESPECIALIZADO DE DESCRAVAÇÃO DE PEDRAS</p>
+            </div>
+            <div class="text-right space-y-1">
+              <div><label class="text-xs font-bold text-slate-600">Nº do Recibo:</label> <input type="text" id="numRecibo" readonly class="w-28 text-center font-bold text-xs bg-slate-200 border rounded p-1"></div>
+              <div><label class="text-xs font-bold text-slate-600">Data:</label> <input type="date" id="dataRecibo" class="text-xs bg-amber-50 border rounded p-1"></div>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 border border-slate-200 p-3 rounded-lg grid grid-cols-2 gap-2 text-xs">
+            <div><strong>RAZÃO SOCIAL:</strong> D&D IND E COMÉRCIO DE ROUPAS E ACESSÓRIOS LTDA</div>
+            <div><strong>CNPJ:</strong> 18.287.630/0003-16</div>
+            <div><strong>ENDEREÇO:</strong> Av. Dom Luis, 1200 - Loja 116, Cep: 60.160-196</div>
+            <div><strong>CIDADE / UF:</strong> Fortaleza - CE</div>
+          </div>
+
+          <div>
+            <div class="bg-slate-100 p-2 font-bold text-xs rounded uppercase mb-2 text-slate-700">1. Dados do Proprietário (Cliente)</div>
+            <div class="mb-3 no-print">
+              <label class="text-xs font-semibold block mb-1">Selecionar Cliente da Nuvem:</label>
+              <select id="recClienteSelect" onchange="preencherDadosClienteRecibo()" class="w-full border border-slate-300 p-1.5 rounded text-xs bg-amber-50">
+                <option value="">Selecione o cliente...</option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-4 gap-3 text-xs">
+              <div class="col-span-2 flex flex-col gap-1">
+                <label class="font-semibold text-slate-600">Nome Completo do Cliente:</label>
+                <input type="text" id="cliNome" placeholder="Digite o nome do cliente" class="p-2 border rounded bg-amber-50">
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="font-semibold text-slate-600">CPF / RG:</label>
+                <input type="text" id="cliDoc" oninput="mascaraCpf(this)" placeholder="000.000.000-00" class="p-2 border rounded bg-amber-50">
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="font-semibold text-slate-600">Telefone / WhatsApp:</label>
+                <input type="text" id="cliTel" placeholder="(85) 90000-0000" class="p-2 border rounded bg-amber-50">
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="bg-slate-100 p-2 font-bold text-xs rounded uppercase mb-2 text-slate-700">2. Especificação da Peça e Serviço</div>
+            <table class="w-full border-collapse border border-slate-300 text-xs">
+              <thead>
+                <tr class="bg-slate-50 text-slate-700">
+                  <th class="border p-2 w-16 text-center">Qtd</th>
+                  <th class="border p-2">Descrição da Peça (Tipo, Modelo)</th>
+                  <th class="border p-2 w-28 text-center">Teor do Ouro</th>
+                  <th class="border p-2 w-32">Cor do Ouro</th>
+                  <th class="border p-2 w-24">Peso Aprox.</th>
+                  <th class="border p-2">Pedras a Descravar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="border p-1 text-center"><input type="number" id="pecaQtd1" value="1" class="w-full text-center border-none p-1 bg-amber-50 rounded"></td>
+                  <td class="border p-1"><input type="text" id="pecaDesc1" placeholder="Ex: Anel Solitário..." class="w-full border-none p-1 bg-amber-50 rounded"></td>
+                  <td class="border p-1 text-center"><input type="text" value="18k (750)" readonly class="w-full font-bold text-center border-none bg-slate-200 p-1 rounded"></td>
+                  <td class="border p-1">
+                    <select id="pecaCor1" class="w-full border-none p-1 bg-amber-50 rounded">
+                      <option>Amarelo</option><option>Branco</option><option>Rosé</option>
+                    </select>
+                  </td>
+                  <td class="border p-1"><input type="text" id="pecaPeso1" placeholder="0.0 g" class="w-full border-none p-1 bg-amber-50 rounded"></td>
+                  <td class="border p-1"><input type="text" id="pecaPedras1" placeholder="Ex: Diamante" class="w-full border-none p-1 bg-amber-50 rounded"></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div class="md:col-span-2 flex flex-col gap-1">
+                <label class="text-xs font-semibold text-slate-600">Observações do Recebimento:</label>
+                <textarea id="obsPeca" rows="2" placeholder="Riscos, marcas de uso..." class="p-2 border rounded bg-amber-50 text-xs w-full"></textarea>
+              </div>
+              <div class="flex flex-col gap-3">
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-semibold text-slate-600">Valor Estimado:</label>
+                  <input type="text" id="valorServico" placeholder="R$ 0,00" class="p-1.5 border rounded bg-amber-50 text-xs font-bold">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ITEM 3 RESTAURADO -->
+          <div>
+            <div class="bg-slate-100 p-2 font-bold text-xs rounded uppercase mb-2 text-slate-700">3. Termo de Autorização e Envio ao Ourives</div>
+            <div class="border border-slate-300 p-3 rounded-lg text-xs leading-relaxed text-justify bg-slate-50 space-y-2">
+              <p>
+                Autorizo a empresa <b>D&D INDÚSTRIA E COMÉRCIO DE ROUPAS E ACESSÓRIOS LTDA</b> a enviar a(s) peça(s) descrita(s) no item 2 ao ourives parceiro credenciado para a execução do serviço de descravação das pedras/gemas.
+              </p>
+              <p>
+                Declaro estar ciente de que o processo de descravação é artesanal e delicado, envolvendo riscos inerentes à manipulação do metal e das pedras, como eventuais microfraturas ou danos pré-existentes imperceptíveis antes da remoção, isentando a contratada de vícios ocultos das peças entregues.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex justify-between pt-12 text-center text-xs">
+            <div class="w-5/12 border-t border-slate-900 pt-1 font-semibold">Assinatura do Proprietário (Cliente)</div>
+            <div class="w-5/12 border-t border-slate-900 pt-1 font-semibold">D&D IND E COMÉRCIO DE ROUPAS E ACESSÓRIOS LTDA</div>
+          </div>
         </div>
       </section>
 
@@ -238,12 +445,30 @@
         <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200 no-print">
           <div>
             <h2 class="text-xl font-bold text-slate-900">Declaração de Endereço</h2>
+            <p class="text-xs text-slate-500">Formulário oficial para comprovação de residência.</p>
           </div>
-          <button onclick="window.print()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">🖨️ Imprimir</button>
+          <button onclick="window.print()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">🖨️ Imprimir Declaração</button>
         </div>
-        <div class="bg-white p-12 rounded-xl shadow-sm border border-slate-200 max-w-4xl mx-auto space-y-6">
-          <h2 class="text-lg font-bold">Declaração de Residência</h2>
-          <p class="text-xs text-slate-500">Módulo ativo para comprovação de residência.</p>
+
+        <div class="bg-white p-12 rounded-xl shadow-sm border border-slate-200 max-w-4xl mx-auto space-y-6 text-slate-800 font-sans text-sm leading-relaxed">
+          <div class="text-center space-y-2 pb-4 border-b">
+            <h2 class="text-lg font-bold uppercase tracking-wide">DECLARAÇÃO DE ENDEREÇO</h2>
+            <p class="text-xs text-slate-500 font-medium">Comprovação de Residência nos Termos da Lei nº 7.115/83</p>
+          </div>
+          <div class="text-justify space-y-4 pt-4">
+            <p>
+              DECLARO, para fins de comprovação de residência, sob as penas da Lei nº 7.115/83, que o(a) Sr.(a) 
+              <input type="text" placeholder="Nome completo do declarante" class="border-b border-slate-400 bg-amber-50 px-2 py-0.5 outline-none font-semibold w-72">, 
+              inscrito(a) no CPF nº <input type="text" oninput="mascaraCpf(this)" placeholder="000.000.000-00" class="border-b border-slate-400 bg-amber-50 px-2 py-0.5 outline-none w-40">, é residente e domiciliado(a) no endereço: 
+              <input type="text" placeholder="Rua / Avenida, Nº, Bairro, Cidade - UF, CEP" class="border-b border-slate-400 bg-amber-50 px-2 py-0.5 outline-none w-full mt-2 font-semibold">.
+            </p>
+            <p class="text-xs text-slate-600 pt-2">
+              Por ser a expressão da verdade, firmo a presente declaração para que produza os devidos efeitos legais.
+            </p>
+          </div>
+          <div class="pt-16 text-center">
+            <div class="inline-block border-t border-slate-900 w-80 pt-1 font-bold">Assinatura do(a) Declarante</div>
+          </div>
         </div>
       </section>
 
@@ -251,32 +476,38 @@
       <section id="aba-relatorios" class="aba-conteudo hidden space-y-6">
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
           <h2 class="text-xl font-bold text-slate-900">Relatórios do Sistema</h2>
-          <button onclick="imprimirRelatorioClientes()" class="px-4 py-2 gold-gradient text-white rounded-lg text-xs font-semibold">🖨️ Imprimir Relatório de Clientes</button>
+          <p class="text-xs text-slate-500">Selecione o relatório que deseja visualizar e imprimir.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+            <div class="p-6 border border-slate-200 rounded-xl bg-slate-50 space-y-4">
+              <h3 class="font-bold text-slate-800 text-base">👥 Relatório de Clientes</h3>
+              <p class="text-xs text-slate-600">Lista completa de clientes cadastrados na nuvem.</p>
+              <button onclick="imprimirRelatorioClientes()" class="px-4 py-2 gold-gradient text-white rounded-lg text-xs font-semibold shadow hover:opacity-95">🖨️ Imprimir Clientes</button>
+            </div>
+            <div class="p-6 border border-slate-200 rounded-xl bg-slate-50 space-y-4">
+              <h3 class="font-bold text-slate-800 text-base">📦 Relatório de Estoque</h3>
+              <p class="text-xs text-slate-600">Resumo de entradas e peso total em estoque.</p>
+              <button onclick="imprimirRelatorioEstoque()" class="px-4 py-2 gold-gradient text-white rounded-lg text-xs font-semibold shadow hover:opacity-95">🖨️ Imprimir Estoque</button>
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- ABA: CADASTRO DE USUÁRIOS & PERMISSÕES -->
+      <!-- ABA: CADASTRO DE USUÁRIOS -->
       <section id="aba-usuarios" class="aba-conteudo hidden space-y-6">
         <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
           <div>
             <h2 class="text-xl font-bold text-slate-900">Cadastro de Usuários & Permissões</h2>
-            <p class="text-xs text-slate-500">Defina quais abas cada usuário pode acessar e gerencie senhas.</p>
+            <p class="text-xs text-slate-500">Gerencie colaboradores, permissões e altere senhas.</p>
           </div>
           <div class="flex gap-2">
             <button onclick="abrirModalAdminSenha()" class="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-semibold hover:bg-slate-700">🔐 Alterar Senha Admin</button>
             <button onclick="abrirModalUsuario()" class="px-4 py-2 gold-gradient text-white rounded-lg text-sm font-semibold shadow hover:opacity-95">+ Novo Usuário</button>
           </div>
         </div>
-
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <table class="w-full text-left border-collapse text-sm">
             <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-semibold">
-              <tr>
-                <th class="p-4">Nome</th>
-                <th class="p-4">CPF</th>
-                <th class="p-4">Menus Permitidos</th>
-                <th class="p-4 text-center">Ações</th>
-              </tr>
+              <tr><th class="p-4">Nome</th><th class="p-4">CPF</th><th class="p-4">Menus Permitidos</th><th class="p-4 text-center">Ações</th></tr>
             </thead>
             <tbody id="tabelaUsuarios" class="divide-y divide-slate-200"></tbody>
           </table>
@@ -294,9 +525,16 @@
       <h3 class="text-lg font-bold text-slate-900">Novo Cliente na Nuvem</h3>
       <div class="space-y-3 text-sm">
         <div><label class="block text-xs font-semibold uppercase mb-1">Nome / Razão Social</label><input type="text" id="cliModalNome" class="w-full p-2 border rounded"></div>
-        <div><label class="block text-xs font-semibold uppercase mb-1">CPF / CNPJ</label><input type="text" id="cliModalCpfCnpj" class="w-full p-2 border rounded"></div>
-        <div><label class="block text-xs font-semibold uppercase mb-1">Telefone</label><input type="text" id="cliModalTelefone" class="w-full p-2 border rounded"></div>
-        <div><label class="block text-xs font-semibold uppercase mb-1">Cidade</label><input type="text" id="cliModalCidade" value="Fortaleza" class="w-full p-2 border rounded"></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block text-xs font-semibold uppercase mb-1">CPF / CNPJ</label><input type="text" id="cliModalCpfCnpj" oninput="mascaraCpf(this)" class="w-full p-2 border rounded" placeholder="000.000.000-00"></div>
+          <div><label class="block text-xs font-semibold uppercase mb-1">Telefone / WhatsApp</label><input type="text" id="cliModalTelefone" class="w-full p-2 border rounded"></div>
+        </div>
+        <div><label class="block text-xs font-semibold uppercase mb-1">E-mail</label><input type="email" id="cliModalEmail" placeholder="cliente@email.com" class="w-full p-2 border rounded"></div>
+        <div><label class="block text-xs font-semibold uppercase mb-1">Endereço Completo (Rua, Nº, Bairro, CEP)</label><input type="text" id="cliModalEndereco" placeholder="Av. Dom Luís, 1200 - Aldeota" class="w-full p-2 border rounded"></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block text-xs font-semibold uppercase mb-1">Cidade</label><input type="text" id="cliModalCidade" value="Fortaleza" class="w-full p-2 border rounded"></div>
+          <div><label class="block text-xs font-semibold uppercase mb-1">Estado</label><input type="text" id="cliModalEstado" value="CE" class="w-full p-2 border rounded"></div>
+        </div>
       </div>
       <div class="flex justify-end space-x-3 pt-4 border-t">
         <button onclick="fecharModalCliente()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded text-sm">Cancelar</button>
@@ -336,14 +574,15 @@
     </div>
   </div>
 
-  <!-- Modal Usuário com Permissões de Menu -->
+  <!-- Modal Usuário (Cadastro / Edição) -->
   <div id="modalUsuario" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-      <h3 class="text-lg font-bold text-slate-900">Novo Usuário & Permissões</h3>
+      <h3 id="modalUsuarioTitulo" class="text-lg font-bold text-slate-900">Novo Usuário & Permissões</h3>
+      <input type="hidden" id="editUserId">
       <div class="space-y-3 text-sm">
         <div><label class="block text-xs font-semibold uppercase mb-1">Nome</label><input type="text" id="userNome" class="w-full p-2 border rounded"></div>
-        <div><label class="block text-xs font-semibold uppercase mb-1">CPF</label><input type="text" id="userCpf" class="w-full p-2 border rounded" placeholder="000.000.000-00"></div>
-        <div><label class="block text-xs font-semibold uppercase mb-1">Senha</label><input type="password" id="userSenha" class="w-full p-2 border rounded"></div>
+        <div><label class="block text-xs font-semibold uppercase mb-1">CPF</label><input type="text" id="userCpf" oninput="mascaraCpf(this)" class="w-full p-2 border rounded" placeholder="000.000.000-00"></div>
+        <div id="divSenhaUser"><label class="block text-xs font-semibold uppercase mb-1">Senha</label><input type="password" id="userSenha" class="w-full p-2 border rounded"></div>
         
         <div class="border-t pt-2">
           <label class="block text-xs font-semibold uppercase mb-2 text-amber-700">Permissões de Acesso aos Menus:</label>
@@ -366,20 +605,6 @@
     </div>
   </div>
 
-  <!-- Modal Alterar Senha Própria -->
-  <div id="modalTrocarSenha" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4">
-      <h3 class="text-lg font-bold text-slate-900">Alterar Minha Senha</h3>
-      <div class="space-y-3 text-sm">
-        <div><label class="block text-xs font-semibold uppercase mb-1">Nova Senha</label><input type="password" id="novaSenhaPropria" class="w-full p-2 border rounded"></div>
-      </div>
-      <div class="flex justify-end space-x-3 pt-4 border-t">
-        <button onclick="document.getElementById('modalTrocarSenha').classList.add('hidden')" class="px-4 py-2 bg-slate-200 text-slate-700 rounded text-sm">Cancelar</button>
-        <button onclick="salvarNovaSenhaPropria()" class="px-4 py-2 gold-gradient text-white rounded text-sm">Salvar</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Modal Alterar Senha Admin -->
   <div id="modalAdminSenha" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4">
@@ -391,6 +616,49 @@
         <button onclick="document.getElementById('modalAdminSenha').classList.add('hidden')" class="px-4 py-2 bg-slate-200 text-slate-700 rounded text-sm">Cancelar</button>
         <button onclick="salvarNovaSenhaAdmin()" class="px-4 py-2 gold-gradient text-white rounded text-sm">Salvar</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal Trocar Senha Específica de Usuário -->
+  <div id="modalTrocarSenhaUser" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4">
+      <h3 class="text-lg font-bold text-slate-900">Trocar Senha do Usuário</h3>
+      <input type="hidden" id="senhaTrocaUserId">
+      <div class="space-y-3 text-sm">
+        <div><label class="block text-xs font-semibold uppercase mb-1">Nova Senha</label><input type="password" id="novaSenhaColaborador" class="w-full p-2 border rounded"></div>
+      </div>
+      <div class="flex justify-end space-x-3 pt-4 border-t">
+        <button onclick="document.getElementById('modalTrocarSenhaUser').classList.add('hidden')" class="px-4 py-2 bg-slate-200 text-slate-700 rounded text-sm">Cancelar</button>
+        <button onclick="salvarTrocaSenhaColaborador()" class="px-4 py-2 gold-gradient text-white rounded text-sm">Salvar Senha</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Histórico Declaração -->
+  <div id="modalHistoricoDeclaracao" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+      <h3 class="text-lg font-bold text-slate-900">Histórico de Declarações</h3>
+      <table class="w-full text-left border-collapse text-sm">
+        <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-semibold">
+          <tr><th class="p-3">N° Formulário</th><th class="p-3">Vendedor</th><th class="p-3">Data</th><th class="p-3">Total</th></tr>
+        </thead>
+        <tbody id="tabelaHistoricoDeclaracao" class="divide-y divide-slate-200"></tbody>
+      </table>
+      <div class="flex justify-end pt-4 border-t"><button onclick="fecharHistoricoDeclaracao()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm">Fechar</button></div>
+    </div>
+  </div>
+
+  <!-- Modal Histórico Recibo -->
+  <div id="modalHistoricoRecibo" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+      <h3 class="text-lg font-bold text-slate-900">Histórico de Recibos</h3>
+      <table class="w-full text-left border-collapse text-sm">
+        <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-semibold">
+          <tr><th class="p-3">Nº Recibo</th><th class="p-3">Data</th><th class="p-3">Cliente</th><th class="p-3">Valor</th></tr>
+        </thead>
+        <tbody id="corpoHistoricoRecibo" class="divide-y divide-slate-200"></tbody>
+      </table>
+      <div class="flex justify-end pt-4 border-t"><button onclick="fecharHistoricoRecibo()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm">Fechar</button></div>
     </div>
   </div>
 
@@ -425,6 +693,14 @@
       carregarProdutos();
       carregarEstoque();
       carregarUsuarios();
+      gerarLinhasDeclaracao();
+      gerarNumeroSequencialDeclaracao();
+      gerarNumeroSequencialRecibo();
+
+      const hoje = new Date().toISOString().split('T')[0];
+      if (document.getElementById('dataRecibo')) document.getElementById('dataRecibo').value = hoje;
+      const opcoesData = { day: 'numeric', month: 'long', year: 'numeric' };
+      if (document.getElementById('cidadeData')) document.getElementById('cidadeData').innerText = `Fortaleza, ` + new Date().toLocaleDateString('pt-BR', opcoesData);
     });
   </script>
 
@@ -443,6 +719,15 @@
       relatorios: { nome: '📊 Relatórios', aba: 'relatorios' },
       usuarios: { nome: '⚙️ Cadastro de Usuários', aba: 'usuarios' }
     };
+
+    function mascaraCpf(input) {
+      let v = input.value.replace(/\D/g, '');
+      if (v.length > 11) v = v.substring(0, 11);
+      v = v.replace(/(\d{3})(\d)/, '$1.$2');
+      v = v.replace(/(\d{3})(\d)/, '$1.$2');
+      v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+      input.value = v;
+    }
 
     async function fazerLogin(e) {
       e.preventDefault();
@@ -472,7 +757,7 @@
           alert('Usuário ou senha incorretos.');
         }
       } catch (err) {
-        alert('Erro ao validar login na nuvem.');
+        alert('Erro ao validar login.');
       }
     }
 
@@ -489,7 +774,7 @@
       permissoes.forEach((key, idx) => {
         if (menuDefinicoes[key]) {
           if (idx === 0) primeiraAba = key;
-          nav.innerHTML += `<button onclick="mudarAba('${key}')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn" data-aba="${key}">${menuDefinicoes[key].nome}</button>`;
+          nav.innerHTML += `<button onclick="mudarAba('${key}')" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition menu-btn whitespace-nowrap" data-aba="${key}">${menuDefinicoes[key].nome}</button>`;
         }
       });
       if (primeiraAba) mudarAba(primeiraAba);
@@ -499,6 +784,41 @@
       usuarioLogadoAtual = null;
       document.getElementById('appSistema').classList.add('hidden');
       document.getElementById('telaLogin').classList.remove('hidden');
+      document.getElementById('formLogin').reset();
+    }
+
+    function mostrarEsqueciSenha() {
+      document.getElementById('formLogin').classList.add('hidden');
+      document.getElementById('boxEsqueciSenha').classList.remove('hidden');
+    }
+
+    function voltarLogin() {
+      document.getElementById('boxEsqueciSenha').classList.add('hidden');
+      document.getElementById('formLogin').classList.remove('hidden');
+    }
+
+    async function salvarRecuperacaoSenha() {
+      const cpf = document.getElementById('recupCpf').value.trim();
+      const novaSenha = document.getElementById('recupNovaSenha').value.trim();
+      if (!cpf || !novaSenha) { alert('Preencha o CPF e a nova senha.'); return; }
+
+      try {
+        const snap = await window.fbGet(window.fbColl(window.db, "usuarios"));
+        let docId = null;
+        snap.forEach(d => {
+          if (d.data().cpf === cpf) docId = d.id;
+        });
+
+        if (docId) {
+          await window.fbUpd(window.fbDoc(window.db, "usuarios", docId), { senha: novaSenha });
+          alert('Senha alterada com sucesso! Faça login com a nova senha.');
+          voltarLogin();
+        } else {
+          alert('CPF não encontrado na base de usuários da nuvem.');
+        }
+      } catch (e) {
+        alert('Erro ao atualizar senha.');
+      }
     }
 
     function mudarAba(abaId) {
@@ -514,6 +834,8 @@
       if (abaId === 'produtos') carregarProdutos();
       if (abaId === 'estoque') carregarEstoque();
       if (abaId === 'usuarios') carregarUsuarios();
+      if (abaId === 'declaracao') prepararSelectClientesDeclaracao();
+      if (abaId === 'recibo') prepararSelectClientesRecibo();
     }
 
     // CLIENTES
@@ -529,8 +851,10 @@
         codigo: 'CLI-' + String(Date.now()).slice(-4),
         nome, cpfCnpj,
         telefone: document.getElementById('cliModalTelefone').value,
+        email: document.getElementById('cliModalEmail').value,
+        endereco: document.getElementById('cliModalEndereco').value,
         cidade: document.getElementById('cliModalCidade').value,
-        estado: 'CE'
+        estado: document.getElementById('cliModalEstado').value
       };
       await window.fbAdd(window.fbColl(window.db, "clientes"), cliente);
       fecharModalCliente(); carregarClientes(); alert('Cliente salvo!');
@@ -538,14 +862,23 @@
 
     async function carregarClientes() {
       const tbody = document.getElementById('tabelaClientes');
-      tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Carregando...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Carregando...</td></tr>`;
       try {
         const snap = await window.fbGet(window.fbColl(window.db, "clientes"));
         tbody.innerHTML = ''; clientesCache = [];
-        if (snap.empty) { tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhum cliente.</td></tr>`; return; }
+        if (snap.empty) { tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Nenhum cliente cadastrado.</td></tr>`; return; }
         snap.forEach(d => {
           const c = d.data(); clientesCache.push({ id: d.id, ...c });
-          tbody.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-4 font-semibold">${c.codigo}</td><td class="p-4">${c.nome}</td><td class="p-4">${c.cpfCnpj}</td><td class="p-4">${c.telefone || '-'}</td><td class="p-4">${c.cidade}/${c.estado}</td><td class="p-4 text-center"><button onclick="excluirRegistro('clientes', '${d.id}')" class="text-red-500 text-xs">Excluir</button></td></tr>`;
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50">
+              <td class="p-4 font-semibold">${c.codigo}</td>
+              <td class="p-4 font-medium text-slate-900">${c.nome}</td>
+              <td class="p-4">${c.cpfCnpj}</td>
+              <td class="p-4">${c.email || '-'}</td>
+              <td class="p-4">${c.telefone || '-'}</td>
+              <td class="p-4">${c.endereco || ''} ${c.cidade ? `(${c.cidade}/${c.estado})` : ''}</td>
+              <td class="p-4 text-center"><button onclick="excluirRegistro('clientes', '${d.id}')" class="text-red-500 text-xs font-semibold">Excluir</button></td>
+            </tr>`;
         });
       } catch (e) {}
     }
@@ -609,27 +942,156 @@
       } catch (e) {}
     }
 
+    // DECLARAÇÃO DE PROPRIEDADE
+    function gerarLinhasDeclaracao() {
+      const tbody = document.getElementById('tbodyItensDeclaracao');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        tbody.innerHTML += `
+          <tr>
+            <td class="border border-slate-900 p-1"><input type="text" class="w-full border-none p-1 item-desc outline-none" placeholder="Item ${i}"></td>
+            <td class="border border-slate-900 p-1"><input type="number" class="w-full border-none p-1 text-center item-qtd outline-none" oninput="calcularTotalDeclaracao()"></td>
+            <td class="border border-slate-900 p-1"><input type="number" step="0.01" class="w-full border-none p-1 text-center item-grama outline-none"></td>
+            <td class="border border-slate-900 p-1"><input type="number" step="0.01" class="w-full border-none p-1 text-center item-valor outline-none" placeholder="0,00" oninput="calcularTotalDeclaracao()"></td>
+          </tr>`;
+      }
+    }
+
+    function gerarNumeroSequencialDeclaracao() {
+      const ano = new Date().getFullYear();
+      if (document.getElementById('numFormulario')) document.getElementById('numFormulario').value = '001/' + ano;
+    }
+
+    function prepararSelectClientesDeclaracao() {
+      const sel = document.getElementById('decClienteSelect');
+      if (!sel) return;
+      sel.innerHTML = '<option value="">Selecione um cliente...</option>';
+      clientesCache.forEach(c => {
+        sel.innerHTML += `<option value="${c.nome}|${c.cpfCnpj}|${c.endereco || ''}">${c.nome} (${c.cpfCnpj})</option>`;
+      });
+    }
+
+    function preencherDadosClienteDeclaracao() {
+      const val = document.getElementById('decClienteSelect').value;
+      if (!val) return;
+      const [nome, cpf, end] = val.split('|');
+      document.getElementById('vendedorNome').value = nome;
+      document.getElementById('vendedorCpf').value = cpf;
+      document.getElementById('vendedorEndereco').value = end;
+      document.getElementById('declNome').innerText = nome;
+    }
+
+    function calcularTotalDeclaracao() {
+      const vals = document.querySelectorAll('.item-valor');
+      let total = 0;
+      vals.forEach(v => total += parseFloat(v.value) || 0);
+      document.getElementById('totalValor').value = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    async function salvarEImprimirDeclaracao() {
+      const dados = {
+        num: document.getElementById('numFormulario').value,
+        vendedorNome: document.getElementById('vendedorNome').value,
+        total: document.getElementById('totalValor').value,
+        data: new Date().toLocaleDateString('pt-BR')
+      };
+      await window.fbAdd(window.fbColl(window.db, "declaracoes"), dados);
+      window.print();
+    }
+
+    async function abrirHistoricoDeclaracao() {
+      const tbody = document.getElementById('tabelaHistoricoDeclaracao');
+      tbody.innerHTML = '';
+      const snap = await window.fbGet(window.fbColl(window.db, "declaracoes"));
+      snap.forEach(d => {
+        const h = d.data();
+        tbody.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-3">${h.num}</td><td class="p-3">${h.vendedorNome}</td><td class="p-3">${h.data}</td><td class="p-3">${h.total}</td></tr>`;
+      });
+      document.getElementById('modalHistoricoDeclaracao').classList.remove('hidden');
+    }
+    function fecharHistoricoDeclaracao() { document.getElementById('modalHistoricoDeclaracao').classList.add('hidden'); }
+
+    // RECIBO DESCRAVAÇÃO
+    function gerarNumeroSequencialRecibo() {
+      if (document.getElementById('numRecibo')) document.getElementById('numRecibo').value = '001/' + new Date().getFullYear();
+    }
+    function prepararSelectClientesRecibo() {
+      const sel = document.getElementById('recClienteSelect');
+      if (!sel) return;
+      sel.innerHTML = '<option value="">Selecione o cliente...</option>';
+      clientesCache.forEach(c => {
+        sel.innerHTML += `<option value="${c.nome}|${c.cpfCnpj}|${c.telefone}">${c.nome} (${c.cpfCnpj})</option>`;
+      });
+    }
+    function preencherDadosClienteRecibo() {
+      const val = document.getElementById('recClienteSelect').value;
+      if (!val) return;
+      const [nome, doc, tel] = val.split('|');
+      document.getElementById('cliNome').value = nome;
+      document.getElementById('cliDoc').value = doc;
+      document.getElementById('cliTel').value = tel || '';
+    }
+    async function imprimirESalvarRecibo() {
+      const recibo = {
+        num: document.getElementById('numRecibo').value,
+        data: document.getElementById('dataRecibo').value,
+        cliNome: document.getElementById('cliNome').value,
+        valorServico: document.getElementById('valorServico').value
+      };
+      await window.fbAdd(window.fbColl(window.db, "recibos"), recibo);
+      window.print();
+    }
+    async function abrirHistoricoRecibo() {
+      const corpo = document.getElementById('corpoHistoricoRecibo');
+      corpo.innerHTML = '';
+      const snap = await window.fbGet(window.fbColl(window.db, "recibos"));
+      snap.forEach(d => {
+        const r = d.data();
+        corpo.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-3">${r.num}</td><td class="p-3">${r.data}</td><td class="p-3">${r.cliNome}</td><td class="p-3">${r.valorServico}</td></tr>`;
+      });
+      document.getElementById('modalHistoricoRecibo').classList.remove('hidden');
+    }
+    function fecharHistoricoRecibo() { document.getElementById('modalHistoricoRecibo').classList.add('hidden'); }
+
     // USUÁRIOS & PERMISSÕES
-    function abrirModalUsuario() {
-      document.getElementById('userNome').value = '';
-      document.getElementById('userCpf').value = '';
+    function abrirModalUsuario(id = '', nome = '', cpf = '', permissoes = []) {
+      document.getElementById('editUserId').value = id;
+      document.getElementById('userNome').value = nome;
+      document.getElementById('userCpf').value = cpf;
       document.getElementById('userSenha').value = '';
-      document.querySelectorAll('.perm-menu').forEach(chk => chk.checked = true);
+      
+      const chks = document.querySelectorAll('.perm-menu');
+      chks.forEach(chk => {
+        chk.checked = !id || permissoes.includes(chk.value);
+      });
+
+      document.getElementById('modalUsuarioTitulo').innerText = id ? 'Editar Usuário & Permissões' : 'Novo Usuário & Permissões';
       document.getElementById('modalUsuario').classList.remove('hidden');
     }
     function fecharModalUsuario() { document.getElementById('modalUsuario').classList.add('hidden'); }
 
     async function salvarUsuarioNuvem() {
+      const id = document.getElementById('editUserId').value;
       const nome = document.getElementById('userNome').value.trim();
       const cpf = document.getElementById('userCpf').value.trim();
       const senha = document.getElementById('userSenha').value.trim();
-      if (!nome || !cpf || !senha) { alert('Preencha todos os campos.'); return; }
+      if (!nome || !cpf) { alert('Preencha Nome e CPF.'); return; }
       
       const permissoes = [];
       document.querySelectorAll('.perm-menu:checked').forEach(chk => permissoes.push(chk.value));
 
-      await window.fbAdd(window.fbColl(window.db, "usuarios"), { nome, cpf, senha, permissoes });
-      fecharModalUsuario(); carregarUsuarios(); alert('Usuário cadastrado com sucesso!');
+      if (id) {
+        let dados = { nome, cpf, permissoes };
+        if (senha) dados.senha = senha;
+        await window.fbUpd(window.fbDoc(window.db, "usuarios", id), dados);
+        alert('Usuário atualizado com sucesso!');
+      } else {
+        if (!senha) { alert('Informe a senha para o novo usuário.'); return; }
+        await window.fbAdd(window.fbColl(window.db, "usuarios"), { nome, cpf, senha, permissoes });
+        alert('Usuário cadastrado com sucesso!');
+      }
+      fecharModalUsuario(); carregarUsuarios();
     }
 
     async function carregarUsuarios() {
@@ -639,29 +1101,35 @@
         snap.forEach(d => {
           const u = d.data();
           const permsText = u.permissoes ? u.permissoes.map(p => menuDefinicoes[p]?.nome.split(' ')[1] || p).join(', ') : 'Todos';
-          tbody.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-4 font-semibold">${u.nome}</td><td class="p-4">${u.cpf}</td><td class="p-4 text-xs text-slate-600">${permsText}</td><td class="p-4 text-center"><button onclick="excluirRegistro('usuarios', '${d.id}')" class="text-red-500 text-xs">Excluir</button></td></tr>`;
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50">
+              <td class="p-4 font-semibold">${u.nome}</td>
+              <td class="p-4">${u.cpf}</td>
+              <td class="p-4 text-xs text-slate-600">${permsText}</td>
+              <td class="p-4 text-center space-x-2">
+                <button onclick="abrirModalUsuario('${d.id}', '${u.nome}', '${u.cpf}', ${JSON.stringify(u.permissoes || [])})" class="text-amber-600 text-xs font-medium hover:underline">✏️ Editar</button>
+                <button onclick="abrirTrocarSenhaUser('${d.id}')" class="text-blue-600 text-xs font-medium hover:underline">🔑 Trocar Senha</button>
+                <button onclick="excluirRegistro('usuarios', '${d.id}')" class="text-red-500 text-xs font-medium hover:underline">🗑️ Excluir</button>
+              </td>
+            </tr>`;
         });
       } catch (e) {}
     }
 
-    // TROCA DE SENHAS
-    function abrirModalTrocarSenhaPropria() {
-      if (usuarioLogadoAtual.nome === 'Admin') {
-        abrirModalAdminSenha();
-        return;
-      }
-      document.getElementById('novaSenhaPropria').value = '';
-      document.getElementById('modalTrocarSenha').classList.remove('hidden');
+    function abrirTrocarSenhaUser(id) {
+      document.getElementById('senhaTrocaUserId').value = id;
+      document.getElementById('novaSenhaColaborador').value = '';
+      document.getElementById('modalTrocarSenhaUser').classList.remove('hidden');
     }
 
-    async function salvarNovaSenhaPropria() {
-      const nova = document.getElementById('novaSenhaPropria').value.trim();
-      if (!nova) return;
-      if (usuarioLogadoAtual.id) {
-        await window.fbUpd(window.fbDoc(window.db, "usuarios", usuarioLogadoAtual.id), { senha: nova });
-        alert('Senha alterada com sucesso!');
-        document.getElementById('modalTrocarSenha').classList.add('hidden');
-      }
+    async function salvarTrocaSenhaColaborador() {
+      const id = document.getElementById('senhaTrocaUserId').value;
+      const novaSenha = document.getElementById('novaSenhaColaborador').value.trim();
+      if (!novaSenha) { alert('Digite a nova senha.'); return; }
+      
+      await window.fbUpd(window.fbDoc(window.db, "usuarios", id), { senha: novaSenha });
+      alert('Senha alterada com sucesso!');
+      document.getElementById('modalTrocarSenhaUser').classList.add('hidden');
     }
 
     function abrirModalAdminSenha() {
@@ -677,6 +1145,14 @@
       document.getElementById('modalAdminSenha').classList.add('hidden');
     }
 
+    // RELATÓRIOS
+    function imprimirRelatorioClientes() {
+      window.print();
+    }
+    function imprimirRelatorioEstoque() {
+      window.print();
+    }
+
     // EXCLUSÃO
     async function excluirRegistro(coluna, id) {
       if (confirm('Deseja excluir este item da nuvem?')) {
@@ -686,10 +1162,6 @@
         if (coluna === 'estoque') carregarEstoque();
         if (coluna === 'usuarios') carregarUsuarios();
       }
-    }
-
-    function imprimirRelatorioClientes() {
-      window.print();
     }
   </script>
 </body>
