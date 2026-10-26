@@ -28,7 +28,7 @@
     <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 space-y-6">
       <div class="text-center space-y-2">
         <div class="inline-flex justify-center mb-2">
-          <img src="logo.png" alt="logo" class="w-24 h-24 object-contain mx-auto rounded-xl shadow-sm" onerror="this.onerror=null; this.src='logo.png';">
+          <img src="logo.png" alt="Logo DD Buy Gold" class="w-24 h-24 object-contain mx-auto rounded-xl shadow-sm" onerror="this.onerror=null; this.src='Logo DD Buy Gold_4.jpg';">
         </div>
         <h1 class="text-2xl font-bold tracking-wider text-slate-900 uppercase">DD BUY GOLD</h1>
         <p class="text-sm text-slate-500">Sistema de Gestão e Comercialização de Ouro</p>
@@ -74,7 +74,7 @@
     <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between no-print shadow-xl">
       <div>
         <div class="p-6 flex items-center space-x-3 border-b border-slate-800">
-          <img src="logo.png" alt="logo" class="w-10 h-10 object-contain rounded-lg shadow-sm" onerror="this.onerror=null; this.src='logo.png';">
+          <img src="logo.png" alt="Logo DD" class="w-10 h-10 object-contain rounded-lg shadow-sm" onerror="this.onerror=null; this.src='Logo DD Buy Gold_4.jpg';">
           <div>
             <h2 class="font-bold text-white text-base tracking-wider">DD BUY GOLD</h2>
             <p class="text-[10px] text-amber-400 font-medium">Painel Nuvem</p>
@@ -192,6 +192,7 @@
                 <th class="p-4">Quantidade</th>
                 <th class="p-4">Peso (g)</th>
                 <th class="p-4">Tipo de Ouro</th>
+                <th class="p-4 text-center">Ações</th>
               </tr>
             </thead>
             <tbody id="tabelaEstoque" class="divide-y divide-slate-200"></tbody>
@@ -276,7 +277,6 @@
             Declaro que transfiro todos os direitos, domínio, posse e fruição relacionados aos bens objetos do contrato para <b>D&D INDÚSTRIA E COMÉRCIO DE ROUPAS E ACESSÓRIOS LTDA, CNPJ: 18.287.630/0003-16</b>, estando isento de qualquer responsabilidade legal e penal.
           </div>
 
-          <!-- Tabela com a nova coluna Cor do Ouro -->
           <table class="w-full border-collapse border border-slate-900 text-xs">
             <thead>
               <tr class="bg-slate-200">
@@ -543,10 +543,12 @@
 
   <!-- ================= MODAIS ================= -->
 
-  <!-- Modal Cliente -->
+  <!-- Modal Cliente (Novo / Edição) -->
   <div id="modalCliente" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4">
-      <h3 class="text-lg font-bold text-slate-900">Novo Cliente na Nuvem</h3>
+      <h3 id="modalClienteTitulo" class="text-lg font-bold text-slate-900">Novo Cliente na Nuvem</h3>
+      <input type="hidden" id="editClienteId">
+      <input type="hidden" id="editClienteCodigo">
       <div class="space-y-3 text-sm">
         <div><label class="block text-xs font-semibold uppercase mb-1">Nome / Razão Social</label><input type="text" id="cliModalNome" class="w-full p-2 border rounded"></div>
         <div class="grid grid-cols-2 gap-2">
@@ -567,10 +569,12 @@
     </div>
   </div>
 
-  <!-- Modal Produto -->
+  <!-- Modal Produto (Novo / Edição) -->
   <div id="modalProduto" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4">
-      <h3 class="text-lg font-bold text-slate-900">Novo Produto</h3>
+      <h3 id="modalProdutoTitulo" class="text-lg font-bold text-slate-900">Novo Produto</h3>
+      <input type="hidden" id="editProdutoId">
+      <input type="hidden" id="editProdutoCodigo">
       <div class="space-y-3 text-sm">
         <div><label class="block text-xs font-semibold uppercase mb-1">Descrição</label><input type="text" id="prodDescricao" class="w-full p-2 border rounded"></div>
         <div><label class="block text-xs font-semibold uppercase mb-1">Peso (g)</label><input type="number" step="0.01" id="prodPeso" class="w-full p-2 border rounded"></div>
@@ -583,17 +587,18 @@
     </div>
   </div>
 
-  <!-- Modal Entrada Estoque -->
+  <!-- Modal Entrada Estoque (Novo / Edição) -->
   <div id="modalEntradaEstoque" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4">
-      <h3 class="text-lg font-bold text-slate-900">Registrar Entrada no Estoque</h3>
+      <h3 id="modalEstoqueTitulo" class="text-lg font-bold text-slate-900">Registrar Entrada no Estoque</h3>
+      <input type="hidden" id="editEstoqueId">
       <div class="space-y-3 text-sm">
         <div><label class="block text-xs font-semibold uppercase mb-1">Produto</label><select id="estProdSelect" class="w-full p-2 border rounded"></select></div>
         <div><label class="block text-xs font-semibold uppercase mb-1">Quantidade</label><input type="number" id="estQtd" value="1" class="w-full p-2 border rounded"></div>
       </div>
       <div class="flex justify-end space-x-3 pt-4 border-t">
         <button onclick="fecharModalEntradaEstoque()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded text-sm">Cancelar</button>
-        <button onclick="salvarEstoqueNuvem()" class="px-4 py-2 gold-gradient text-white rounded text-sm">Registrar</button>
+        <button onclick="salvarEstoqueNuvem()" class="px-4 py-2 gold-gradient text-white rounded text-sm">Salvar</button>
       </div>
     </div>
   </div>
@@ -731,6 +736,8 @@
   <!-- ================= LÓGICA DO SISTEMA ================= -->
   <script>
     let clientesCache = [];
+    let produtosCache = [];
+    let estoqueCache = [];
     let usuarioLogadoAtual = null;
 
     const menuDefinicoes = {
@@ -863,17 +870,46 @@
       if (abaId === 'relatorios') document.getElementById('areaRelatorioImpressao').classList.add('hidden');
     }
 
-    // CLIENTES
-    function abrirModalCliente() { document.getElementById('modalCliente').classList.remove('hidden'); }
+    // CLIENTES (NOVO & EDIÇÃO)
+    function abrirModalCliente(id = '') {
+      document.getElementById('editClienteId').value = id;
+      if (id) {
+        const cli = clientesCache.find(c => c.id === id);
+        if (cli) {
+          document.getElementById('modalClienteTitulo').innerText = 'Editar Cliente';
+          document.getElementById('editClienteCodigo').value = cli.codigo || '';
+          document.getElementById('cliModalNome').value = cli.nome || '';
+          document.getElementById('cliModalCpfCnpj').value = cli.cpfCnpj || '';
+          document.getElementById('cliModalTelefone').value = cli.telefone || '';
+          document.getElementById('cliModalEmail').value = cli.email || '';
+          document.getElementById('cliModalEndereco').value = cli.endereco || '';
+          document.getElementById('cliModalCidade').value = cli.cidade || 'Fortaleza';
+          document.getElementById('cliModalEstado').value = cli.estado || 'CE';
+        }
+      } else {
+        document.getElementById('modalClienteTitulo').innerText = 'Novo Cliente na Nuvem';
+        document.getElementById('editClienteCodigo').value = '';
+        document.getElementById('cliModalNome').value = '';
+        document.getElementById('cliModalCpfCnpj').value = '';
+        document.getElementById('cliModalTelefone').value = '';
+        document.getElementById('cliModalEmail').value = '';
+        document.getElementById('cliModalEndereco').value = '';
+        document.getElementById('cliModalCidade').value = 'Fortaleza';
+        document.getElementById('cliModalEstado').value = 'CE';
+      }
+      document.getElementById('modalCliente').classList.remove('hidden');
+    }
+
     function fecharModalCliente() { document.getElementById('modalCliente').classList.add('hidden'); }
 
     async function salvarClienteNuvem() {
+      const id = document.getElementById('editClienteId').value;
       const nome = document.getElementById('cliModalNome').value.trim();
       const cpfCnpj = document.getElementById('cliModalCpfCnpj').value.trim();
       if (!nome || !cpfCnpj) { alert('Preencha Nome e CPF/CNPJ.'); return; }
 
       const cliente = {
-        codigo: 'CLI-' + String(Date.now()).slice(-4),
+        codigo: id ? document.getElementById('editClienteCodigo').value : ('CLI-' + String(Date.now()).slice(-4)),
         nome, cpfCnpj,
         telefone: document.getElementById('cliModalTelefone').value,
         email: document.getElementById('cliModalEmail').value,
@@ -881,8 +917,15 @@
         cidade: document.getElementById('cliModalCidade').value,
         estado: document.getElementById('cliModalEstado').value
       };
-      await window.fbAdd(window.fbColl(window.db, "clientes"), cliente);
-      fecharModalCliente(); carregarClientes(); alert('Cliente salvo!');
+
+      if (id) {
+        await window.fbUpd(window.fbDoc(window.db, "clientes", id), cliente);
+        alert('Cliente atualizado!');
+      } else {
+        await window.fbAdd(window.fbColl(window.db, "clientes"), cliente);
+        alert('Cliente salvo!');
+      }
+      fecharModalCliente(); carregarClientes();
     }
 
     async function carregarClientes() {
@@ -902,54 +945,139 @@
               <td class="p-4">${c.email || '-'}</td>
               <td class="p-4">${c.telefone || '-'}</td>
               <td class="p-4">${c.endereco || ''} ${c.cidade ? `(${c.cidade}/${c.estado})` : ''}</td>
-              <td class="p-4 text-center"><button onclick="excluirRegistro('clientes', '${d.id}')" class="text-red-500 text-xs font-semibold">Excluir</button></td>
+              <td class="p-4 text-center space-x-2">
+                <button onclick="abrirModalCliente('${d.id}')" class="text-amber-600 text-xs font-semibold hover:underline">✏️ Editar</button>
+                <button onclick="excluirRegistro('clientes', '${d.id}')" class="text-red-500 text-xs font-semibold hover:underline">🗑️ Excluir</button>
+              </td>
             </tr>`;
         });
       } catch (e) {}
     }
 
-    // PRODUTOS
-    function abrirModalProduto() { document.getElementById('modalProduto').classList.remove('hidden'); }
+    // PRODUTOS (NOVO & EDIÇÃO)
+    function abrirModalProduto(id = '') {
+      document.getElementById('editProdutoId').value = id;
+      if (id) {
+        const p = produtosCache.find(item => item.id === id);
+        if (p) {
+          document.getElementById('modalProdutoTitulo').innerText = 'Editar Produto';
+          document.getElementById('editProdutoCodigo').value = p.codigo || '';
+          document.getElementById('prodDescricao').value = p.descricao || '';
+          document.getElementById('prodPeso').value = p.peso || '';
+          document.getElementById('prodTipoOuro').value = p.tipoOuro || 'Amarelo';
+        }
+      } else {
+        document.getElementById('modalProdutoTitulo').innerText = 'Novo Produto';
+        document.getElementById('editProdutoCodigo').value = '';
+        document.getElementById('prodDescricao').value = '';
+        document.getElementById('prodPeso').value = '';
+        document.getElementById('prodTipoOuro').value = 'Amarelo';
+      }
+      document.getElementById('modalProduto').classList.remove('hidden');
+    }
+
     function fecharModalProduto() { document.getElementById('modalProduto').classList.add('hidden'); }
 
     async function salvarProdutoNuvem() {
+      const id = document.getElementById('editProdutoId').value;
       const descricao = document.getElementById('prodDescricao').value.trim();
       const peso = parseFloat(document.getElementById('prodPeso').value);
       if (!descricao || !peso) { alert('Preencha descrição e peso.'); return; }
-      await window.fbAdd(window.fbColl(window.db, "produtos"), { codigo: 'PROD-' + String(Date.now()).slice(-4), descricao, peso, tipoOuro: document.getElementById('prodTipoOuro').value });
-      fecharModalProduto(); carregarProdutos(); alert('Produto salvo!');
+
+      const prod = {
+        codigo: id ? document.getElementById('editProdutoCodigo').value : ('PROD-' + String(Date.now()).slice(-4)),
+        descricao,
+        peso,
+        tipoOuro: document.getElementById('prodTipoOuro').value
+      };
+
+      if (id) {
+        await window.fbUpd(window.fbDoc(window.db, "produtos", id), prod);
+        alert('Produto atualizado!');
+      } else {
+        await window.fbAdd(window.fbColl(window.db, "produtos"), prod);
+        alert('Produto salvo!');
+      }
+      fecharModalProduto(); carregarProdutos();
     }
 
     async function carregarProdutos() {
       const tbody = document.getElementById('tabelaProdutos'); tbody.innerHTML = '';
       try {
         const snap = await window.fbGet(window.fbColl(window.db, "produtos"));
+        produtosCache = [];
         snap.forEach(d => {
-          const p = d.data();
-          tbody.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-4 font-semibold">${p.codigo}</td><td class="p-4">${p.descricao}</td><td class="p-4">${p.peso} g</td><td class="p-4">${p.tipoOuro}</td><td class="p-4 text-center"><button onclick="excluirRegistro('produtos', '${d.id}')" class="text-red-500 text-xs">Excluir</button></td></tr>`;
+          const p = d.data(); produtosCache.push({ id: d.id, ...p });
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50">
+              <td class="p-4 font-semibold">${p.codigo}</td>
+              <td class="p-4">${p.descricao}</td>
+              <td class="p-4">${p.peso} g</td>
+              <td class="p-4">${p.tipoOuro}</td>
+              <td class="p-4 text-center space-x-2">
+                <button onclick="abrirModalProduto('${d.id}')" class="text-amber-600 text-xs font-semibold hover:underline">✏️ Editar</button>
+                <button onclick="excluirRegistro('produtos', '${d.id}')" class="text-red-500 text-xs font-semibold hover:underline">🗑️ Excluir</button>
+              </td>
+            </tr>`;
         });
       } catch (e) {}
     }
 
-    // ESTOQUE
-    async function abrirModalEntradaEstoque() {
+    // ESTOQUE (NOVO, EDIÇÃO E EXCLUSÃO)
+    async function abrirModalEntradaEstoque(id = '') {
+      document.getElementById('editEstoqueId').value = id;
       const select = document.getElementById('estProdSelect'); select.innerHTML = '';
-      const snap = await window.fbGet(window.fbColl(window.db, "produtos"));
-      snap.forEach(d => {
-        const p = d.data();
-        select.innerHTML += `<option value="${p.descricao}|${p.peso}|${p.tipoOuro}">${p.descricao} (${p.peso}g)</option>`;
+      
+      if (produtosCache.length === 0) {
+        const snap = await window.fbGet(window.fbColl(window.db, "produtos"));
+        snap.forEach(d => produtosCache.push({ id: d.id, ...d.data() }));
+      }
+
+      produtosCache.forEach(p => {
+        select.innerHTML += `<option value="${p.descricao}|${p.peso}|${p.tipoOuro}">${p.descricao} (${p.peso}g - ${p.tipoOuro})</option>`;
       });
+
+      if (id) {
+        const est = estoqueCache.find(item => item.id === id);
+        if (est) {
+          document.getElementById('modalEstoqueTitulo').innerText = 'Editar Entrada no Estoque';
+          document.getElementById('estQtd').value = est.qtd || 1;
+          const matchOpt = Array.from(select.options).find(opt => opt.value.startsWith(est.descricao));
+          if (matchOpt) select.value = matchOpt.value;
+        }
+      } else {
+        document.getElementById('modalEstoqueTitulo').innerText = 'Registrar Entrada no Estoque';
+        document.getElementById('estQtd').value = 1;
+      }
+
       document.getElementById('modalEntradaEstoque').classList.remove('hidden');
     }
+
     function fecharModalEntradaEstoque() { document.getElementById('modalEntradaEstoque').classList.add('hidden'); }
 
     async function salvarEstoqueNuvem() {
+      const id = document.getElementById('editEstoqueId').value;
       const val = document.getElementById('estProdSelect').value;
-      if (!val) { alert('Cadastre produto.'); return; }
+      if (!val) { alert('Cadastre ao menos um produto antes.'); return; }
       const [descricao, peso, tipoOuro] = val.split('|');
       const qtd = parseInt(document.getElementById('estQtd').value) || 1;
-      await window.fbAdd(window.fbColl(window.db, "estoque"), { data: new Date().toLocaleDateString('pt-BR'), descricao, qtd, peso: parseFloat(peso) * qtd, tipoOuro });
-      fecharModalEntradaEstoque(); carregarEstoque(); alert('Estoque atualizado!');
+
+      const dadosEstoque = {
+        data: new Date().toLocaleDateString('pt-BR'),
+        descricao,
+        qtd,
+        peso: parseFloat(peso) * qtd,
+        tipoOuro
+      };
+
+      if (id) {
+        await window.fbUpd(window.fbDoc(window.db, "estoque", id), dadosEstoque);
+        alert('Registro do estoque atualizado!');
+      } else {
+        await window.fbAdd(window.fbColl(window.db, "estoque"), dadosEstoque);
+        alert('Estoque atualizado!');
+      }
+      fecharModalEntradaEstoque(); carregarEstoque();
     }
 
     async function carregarEstoque() {
@@ -957,9 +1085,22 @@
       let tp = 0, tpes = 0;
       try {
         const snap = await window.fbGet(window.fbColl(window.db, "estoque"));
+        estoqueCache = [];
         snap.forEach(d => {
-          const e = d.data(); tp += e.qtd; tpes += e.peso;
-          tbody.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-4">${e.data}</td><td class="p-4 font-medium">${e.descricao}</td><td class="p-4">${e.qtd}</td><td class="p-4">${e.peso.toFixed(2)} g</td><td class="p-4">${e.tipoOuro}</td></tr>`;
+          const e = d.data(); estoqueCache.push({ id: d.id, ...e });
+          tp += e.qtd; tpes += e.peso;
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50">
+              <td class="p-4">${e.data}</td>
+              <td class="p-4 font-medium">${e.descricao}</td>
+              <td class="p-4">${e.qtd}</td>
+              <td class="p-4">${e.peso.toFixed(2)} g</td>
+              <td class="p-4">${e.tipoOuro}</td>
+              <td class="p-4 text-center space-x-2">
+                <button onclick="abrirModalEntradaEstoque('${d.id}')" class="text-amber-600 text-xs font-semibold hover:underline">✏️ Editar</button>
+                <button onclick="excluirRegistro('estoque', '${d.id}')" class="text-red-500 text-xs font-semibold hover:underline">🗑️ Excluir</button>
+              </td>
+            </tr>`;
         });
         document.getElementById('estTotalPecas').innerText = tp;
         document.getElementById('estTotalPeso').innerText = tpes.toFixed(2) + ' g';
