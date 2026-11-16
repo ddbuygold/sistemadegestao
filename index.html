@@ -487,16 +487,35 @@
           <h2 class="text-xl font-bold text-slate-900">Relatórios do Sistema</h2>
           <p class="text-xs text-slate-500">Selecione o relatório que deseja visualizar e imprimir.</p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-            <div class="p-6 border border-slate-200 rounded-xl bg-slate-50 space-y-4">
-              <h3 class="font-bold text-slate-800 text-base">👥 Relatório de Clientes</h3>
-              <p class="text-xs text-slate-600">Lista completa de clientes cadastrados na nuvem.</p>
-              <button onclick="gerarEImprimirRelatorioClientes()" class="px-4 py-2 gold-gradient text-white rounded-lg text-xs font-semibold shadow hover:opacity-95">🖨️ Imprimir Clientes</button>
+            
+            <!-- Bloco Relatório de Clientes -->
+            <div class="p-6 border border-slate-200 rounded-xl bg-slate-50 space-y-4 flex flex-col justify-between">
+              <div>
+                <h3 class="font-bold text-slate-800 text-base">👥 Relatório de Clientes</h3>
+                <p class="text-xs text-slate-600 mt-1">Lista completa de clientes cadastrados na nuvem.</p>
+              </div>
+              <button onclick="gerarEImprimirRelatorioClientes()" class="w-fit px-4 py-2 gold-gradient text-white rounded-lg text-xs font-semibold shadow hover:opacity-95">🖨️ Imprimir Clientes</button>
             </div>
+
+            <!-- Bloco Relatório de Produtos / Estoque com Filtro de Período -->
             <div class="p-6 border border-slate-200 rounded-xl bg-slate-50 space-y-4">
-              <h3 class="font-bold text-slate-800 text-base">📦 Relatório de Estoque</h3>
-              <p class="text-xs text-slate-600">Resumo de produtos e entradas registradas no estoque.</p>
-              <button onclick="gerarEImprimirRelatorioEstoque()" class="px-4 py-2 gold-gradient text-white rounded-lg text-xs font-semibold shadow hover:opacity-95">🖨️ Imprimir Estoque</button>
+              <div>
+                <h3 class="font-bold text-slate-800 text-base">📦 Relatório de Produtos / Estoque</h3>
+                <p class="text-xs text-slate-600 mt-1">Filtre por período de movimentação para emitir o relatório.</p>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Data Inicial:</label>
+                  <input type="date" id="relEstoqueDataInicio" class="w-full p-2 border rounded bg-white">
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Data Final:</label>
+                  <input type="date" id="relEstoqueDataFim" class="w-full p-2 border rounded bg-white">
+                </div>
+              </div>
+              <button onclick="gerarEImprimirRelatorioEstoque()" class="px-4 py-2 gold-gradient text-white rounded-lg text-xs font-semibold shadow hover:opacity-95">🖨️ Imprimir Relatório</button>
             </div>
+
           </div>
         </div>
 
@@ -507,7 +526,7 @@
               <img src="logo.png" alt="Logo" class="w-12 h-12 object-contain" onerror="this.onerror=null; this.src='Logo DD Buy Gold_4.jpg';">
               <div>
                 <h2 id="relatorioTitulo" class="text-lg font-bold uppercase text-slate-900">RELATÓRIO</h2>
-                <p class="text-xs text-slate-500">D&D INDÚSTRIA E COMÉRCIO DE ROUPAS E ACESSÓRIOS LTDA</p>
+                <p id="relatorioSubtitulo" class="text-xs text-slate-500">D&D INDÚSTRIA E COMÉRCIO DE ROUPAS E ACESSÓRIOS LTDA</p>
               </div>
             </div>
             <p id="relatorioData" class="text-xs font-semibold text-slate-600"></p>
@@ -543,13 +562,16 @@
 
   <!-- ================= MODAIS ================= -->
 
-  <!-- Modal Cliente (Novo / Edição) -->
+  <!-- Modal Cliente (Novo / Edição com Código Editável) -->
   <div id="modalCliente" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4">
       <h3 id="modalClienteTitulo" class="text-lg font-bold text-slate-900">Novo Cliente na Nuvem</h3>
       <input type="hidden" id="editClienteId">
-      <input type="hidden" id="editClienteCodigo">
       <div class="space-y-3 text-sm">
+        <div id="divCampoCodigoCliente">
+          <label class="block text-xs font-semibold uppercase mb-1 text-amber-700">Código do Cliente</label>
+          <input type="text" id="cliModalCodigo" class="w-full p-2 border rounded font-semibold bg-amber-50" placeholder="CLI-0001">
+        </div>
         <div><label class="block text-xs font-semibold uppercase mb-1">Nome / Razão Social</label><input type="text" id="cliModalNome" class="w-full p-2 border rounded"></div>
         <div class="grid grid-cols-2 gap-2">
           <div><label class="block text-xs font-semibold uppercase mb-1">CPF / CNPJ</label><input type="text" id="cliModalCpfCnpj" oninput="mascaraCpf(this)" class="w-full p-2 border rounded" placeholder="000.000.000-00"></div>
@@ -569,7 +591,7 @@
     </div>
   </div>
 
-  <!-- Modal Produto (Novo / Edição) -->
+  <!-- Modal Produto -->
   <div id="modalProduto" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4">
       <h3 id="modalProdutoTitulo" class="text-lg font-bold text-slate-900">Novo Produto</h3>
@@ -587,7 +609,7 @@
     </div>
   </div>
 
-  <!-- Modal Entrada Estoque (Novo / Edição) -->
+  <!-- Modal Entrada Estoque -->
   <div id="modalEntradaEstoque" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4">
       <h3 id="modalEstoqueTitulo" class="text-lg font-bold text-slate-900">Registrar Entrada no Estoque</h3>
@@ -870,14 +892,16 @@
       if (abaId === 'relatorios') document.getElementById('areaRelatorioImpressao').classList.add('hidden');
     }
 
-    // CLIENTES (NOVO & EDIÇÃO)
+    // CLIENTES (NOVO & EDIÇÃO COM CÓDIGO EDITÁVEL)
     function abrirModalCliente(id = '') {
       document.getElementById('editClienteId').value = id;
+      const divCod = document.getElementById('divCampoCodigoCliente');
       if (id) {
         const cli = clientesCache.find(c => c.id === id);
         if (cli) {
           document.getElementById('modalClienteTitulo').innerText = 'Editar Cliente';
-          document.getElementById('editClienteCodigo').value = cli.codigo || '';
+          divCod.classList.remove('hidden');
+          document.getElementById('cliModalCodigo').value = cli.codigo || '';
           document.getElementById('cliModalNome').value = cli.nome || '';
           document.getElementById('cliModalCpfCnpj').value = cli.cpfCnpj || '';
           document.getElementById('cliModalTelefone').value = cli.telefone || '';
@@ -888,7 +912,8 @@
         }
       } else {
         document.getElementById('modalClienteTitulo').innerText = 'Novo Cliente na Nuvem';
-        document.getElementById('editClienteCodigo').value = '';
+        divCod.classList.add('hidden');
+        document.getElementById('cliModalCodigo').value = 'CLI-' + String(Date.now()).slice(-4);
         document.getElementById('cliModalNome').value = '';
         document.getElementById('cliModalCpfCnpj').value = '';
         document.getElementById('cliModalTelefone').value = '';
@@ -904,12 +929,13 @@
 
     async function salvarClienteNuvem() {
       const id = document.getElementById('editClienteId').value;
+      const codigo = document.getElementById('cliModalCodigo').value.trim();
       const nome = document.getElementById('cliModalNome').value.trim();
       const cpfCnpj = document.getElementById('cliModalCpfCnpj').value.trim();
       if (!nome || !cpfCnpj) { alert('Preencha Nome e CPF/CNPJ.'); return; }
 
       const cliente = {
-        codigo: id ? document.getElementById('editClienteCodigo').value : ('CLI-' + String(Date.now()).slice(-4)),
+        codigo: codigo || ('CLI-' + String(Date.now()).slice(-4)),
         nome, cpfCnpj,
         telefone: document.getElementById('cliModalTelefone').value,
         email: document.getElementById('cliModalEmail').value,
@@ -1064,6 +1090,7 @@
 
       const dadosEstoque = {
         data: new Date().toLocaleDateString('pt-BR'),
+        dataISO: new Date().toISOString().split('T')[0],
         descricao,
         qtd,
         peso: parseFloat(peso) * qtd,
@@ -1281,14 +1308,22 @@
       document.getElementById('declEndEndereco').value = endOld;
     }
 
-    // RELATÓRIOS
+    // RELATÓRIOS (COM FILTRO DE PERÍODO)
+    function converterDataBrParaISO(dataBr) {
+      if (!dataBr || !dataBr.includes('/')) return dataBr;
+      const [dia, mes, ano] = dataBr.split('/');
+      return `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+    }
+
     async function gerarEImprimirRelatorioClientes() {
       const area = document.getElementById('areaRelatorioImpressao');
       const titulo = document.getElementById('relatorioTitulo');
+      const subtitulo = document.getElementById('relatorioSubtitulo');
       const dataEl = document.getElementById('relatorioData');
       const conteud = document.getElementById('relatorioConteudoTabela');
 
       titulo.innerText = "RELATÓRIO DE CLIENTES CADASTRADOS";
+      subtitulo.innerText = "D&D INDÚSTRIA E COMÉRCIO DE ROUPAS E ACESSÓRIOS LTDA";
       dataEl.innerText = "Data de emissão: " + new Date().toLocaleDateString('pt-BR');
 
       const snap = await window.fbGet(window.fbColl(window.db, "clientes"));
@@ -1330,10 +1365,24 @@
     async function gerarEImprimirRelatorioEstoque() {
       const area = document.getElementById('areaRelatorioImpressao');
       const titulo = document.getElementById('relatorioTitulo');
+      const subtitulo = document.getElementById('relatorioSubtitulo');
       const dataEl = document.getElementById('relatorioData');
       const conteud = document.getElementById('relatorioConteudoTabela');
 
-      titulo.innerText = "RELATÓRIO DE ESTOQUE E ENTRADAS";
+      const dtInicio = document.getElementById('relEstoqueDataInicio').value;
+      const dtFim = document.getElementById('relEstoqueDataFim').value;
+
+      titulo.innerText = "RELATÓRIO DE PRODUTOS E ESTOQUE";
+      let periodoTxt = "Período: Todo o histórico";
+      if (dtInicio && dtFim) {
+        periodoTxt = `Período: ${dtInicio.split('-').reverse().join('/')} até ${dtFim.split('-').reverse().join('/')}`;
+      } else if (dtInicio) {
+        periodoTxt = `A partir de: ${dtInicio.split('-').reverse().join('/')}`;
+      } else if (dtFim) {
+        periodoTxt = `Até: ${dtFim.split('-').reverse().join('/')}`;
+      }
+
+      subtitulo.innerText = periodoTxt;
       dataEl.innerText = "Data de emissão: " + new Date().toLocaleDateString('pt-BR');
 
       const snap = await window.fbGet(window.fbColl(window.db, "estoque"));
@@ -1351,12 +1400,18 @@
 
       let totalPecas = 0;
       let totalPeso = 0;
+      let registrosEncontrados = 0;
 
-      if (snap.empty) {
-        html += `<tr><td colspan="5" class="border p-4 text-center">Nenhum item em estoque.</td></tr>`;
-      } else {
-        snap.forEach(d => {
-          const e = d.data();
+      snap.forEach(d => {
+        const e = d.data();
+        const itemDataISO = e.dataISO || converterDataBrParaISO(e.data);
+
+        let dentroDoPeriodo = true;
+        if (dtInicio && itemDataISO < dtInicio) dentroDoPeriodo = false;
+        if (dtFim && itemDataISO > dtFim) dentroDoPeriodo = false;
+
+        if (dentroDoPeriodo) {
+          registrosEncontrados++;
           totalPecas += e.qtd;
           totalPeso += e.peso;
           html += `<tr>
@@ -1366,13 +1421,17 @@
             <td class="border p-2">${e.peso.toFixed(2)} g</td>
             <td class="border p-2">${e.tipoOuro}</td>
           </tr>`;
-        });
+        }
+      });
+
+      if (registrosEncontrados === 0) {
+        html += `<tr><td colspan="5" class="border p-4 text-center">Nenhum registro encontrado para o período selecionado.</td></tr>`;
       }
 
       html += `</tbody>
         <tfoot>
           <tr class="bg-slate-200 font-bold">
-            <td colspan="2" class="border p-2 text-right">TOTAL ACUMULADO:</td>
+            <td colspan="2" class="border p-2 text-right">TOTAL DO PERÍODO:</td>
             <td class="border p-2">${totalPecas}</td>
             <td class="border p-2">${totalPeso.toFixed(2)} g</td>
             <td class="border p-2">--</td>
