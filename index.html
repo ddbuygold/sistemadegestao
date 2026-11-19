@@ -23,6 +23,12 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased">
 
+  <!-- BANNER DE ALERTA DE CONEXÃO / FIREBASE -->
+  <div id="alertaFirebaseBanner" class="hidden fixed top-0 left-0 right-0 bg-red-600 text-white px-4 py-3 text-xs font-medium flex items-center justify-between z-[100] shadow-lg no-print">
+    <div id="alertaFirebaseTexto">⚠️ Atenção: Erro de conexão com o banco de dados na nuvem.</div>
+    <button onclick="document.getElementById('alertaFirebaseBanner').classList.add('hidden')" class="ml-4 px-2 py-1 bg-red-800 rounded hover:bg-red-900 font-bold">Fechar</button>
+  </div>
+
   <!-- ================= TELA DE LOGIN ================= -->
   <div id="telaLogin" class="min-h-screen flex items-center justify-center bg-slate-900 px-4">
     <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 space-y-6">
@@ -728,22 +734,26 @@
       measurementId: "G-MPER30SZ6M"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    try {
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
 
-    window.db = db;
-    window.fbColl = collection;
-    window.fbGet = getDocs;
-    window.fbAdd = addDoc;
-    window.fbDel = deleteDoc;
-    window.fbDoc = doc;
-    window.fbUpd = updateDoc;
+      window.db = db;
+      window.fbColl = collection;
+      window.fbGet = getDocs;
+      window.fbAdd = addDoc;
+      window.fbDel = deleteDoc;
+      window.fbDoc = doc;
+      window.fbUpd = updateDoc;
+      window.firebasePronto = true;
 
-    document.addEventListener("DOMContentLoaded", () => {
-      carregarClientes();
-      carregarProdutos();
-      carregarEstoque();
-      carregarUsuarios();
+      inicializarSistemaNuvem();
+    } catch (erroInit) {
+      console.error("Erro ao inicializar Firebase:", erroInit);
+      window.exibirAlertaFirebase("Falha crítica ao conectar com o servidor Firebase. Verifique sua internet.");
+    }
+
+    function inicializarSistemaNuvem() {
       gerarLinhasDeclaracao();
       gerarNumeroSequencialDeclaracao();
       gerarNumeroSequencialRecibo();
@@ -752,7 +762,12 @@
       if (document.getElementById('dataRecibo')) document.getElementById('dataRecibo').value = hoje;
       const opcoesData = { day: 'numeric', month: 'long', year: 'numeric' };
       if (document.getElementById('cidadeData')) document.getElementById('cidadeData').innerText = `Fortaleza, ` + new Date().toLocaleDateString('pt-BR', opcoesData);
-    });
+
+      carregarClientes();
+      carregarProdutos();
+      carregarEstoque();
+      carregarUsuarios();
+    }
   </script>
 
   <!-- ================= LÓGICA DO SISTEMA ================= -->
@@ -761,6 +776,24 @@
     let produtosCache = [];
     let estoqueCache = [];
     let usuarioLogadoAtual = null;
+
+    window.exibirAlertaFirebase = function(mensagem) {
+      const banner = document.getElementById('alertaFirebaseBanner');
+      const texto = document.getElementById('alertaFirebaseTexto');
+      if (banner && texto) {
+        texto.innerHTML = `⚠️ ${mensagem}`;
+        banner.classList.remove('hidden');
+      }
+    };
+
+    function tratarErroFirebase(err, acao) {
+      console.error(`Erro ao ${acao}:`, err);
+      if (err && (err.code === 'permission-denied' || (err.message && err.message.includes('permissions')))) {
+        window.exibirAlertaFirebase("Acesso bloqueado pelo Firebase (Regras expiradas). Acesse o Console Firebase > Firestore > Regras e publique 'allow read, write: if true;'.");
+      } else {
+        window.exibirAlertaFirebase(`Não foi possível ${acao}. Verifique sua conexão com a internet.`);
+      }
+    }
 
     const menuDefinicoes = {
       clientes: { nome: '👥 Cadastro de Clientes', aba: 'clientes' },
@@ -793,6 +826,11 @@
         return;
       }
 
+      if (!window.firebasePronto) {
+        alert('Aguarde a conexão com a nuvem ser estabelecida.');
+        return;
+      }
+
       try {
         const snap = await window.fbGet(window.fbColl(window.db, "usuarios"));
         let encontrado = null;
@@ -810,7 +848,7 @@
           alert('Usuário ou senha incorretos.');
         }
       } catch (err) {
-        alert('Erro ao validar login.');
+        tratarErroFirebase(err, 'validar login');
       }
     }
 
@@ -870,7 +908,7 @@
           alert('CPF não encontrado na base de usuários da nuvem.');
         }
       } catch (e) {
-        alert('Erro ao atualizar senha.');
+        tratarErroFirebase(e, 'atualizar senha');
       }
     }
 
@@ -944,17 +982,22 @@
         estado: document.getElementById('cliModalEstado').value
       };
 
-      if (id) {
-        await window.fbUpd(window.fbDoc(window.db, "clientes", id), cliente);
-        alert('Cliente atualizado!');
-      } else {
-        await window.fbAdd(window.fbColl(window.db, "clientes"), cliente);
-        alert('Cliente salvo!');
+      try {
+        if (id) {
+          await window.fbUpd(window.fbDoc(window.db, "clientes", id), cliente);
+          alert('Cliente atualizado!');
+        } else {
+          await window.fbAdd(window.fbColl(window.db, "clientes"), cliente);
+          alert('Cliente salvo!');
+        }
+        fecharModalCliente(); carregarClientes();
+      } catch (e) {
+        tratarErroFirebase(e, 'salvar cliente');
       }
-      fecharModalCliente(); carregarClientes();
     }
 
     async function carregarClientes() {
+      if (!window.firebasePronto) return;
       const tbody = document.getElementById('tabelaClientes');
       tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Carregando...</td></tr>`;
       try {
@@ -977,7 +1020,10 @@
               </td>
             </tr>`;
         });
-      } catch (e) {}
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500">Erro ao carregar clientes da nuvem.</td></tr>`;
+        tratarErroFirebase(e, 'carregar clientes');
+      }
     }
 
     // PRODUTOS (NOVO & EDIÇÃO)
@@ -1017,21 +1063,27 @@
         tipoOuro: document.getElementById('prodTipoOuro').value
       };
 
-      if (id) {
-        await window.fbUpd(window.fbDoc(window.db, "produtos", id), prod);
-        alert('Produto atualizado!');
-      } else {
-        await window.fbAdd(window.fbColl(window.db, "produtos"), prod);
-        alert('Produto salvo!');
+      try {
+        if (id) {
+          await window.fbUpd(window.fbDoc(window.db, "produtos", id), prod);
+          alert('Produto atualizado!');
+        } else {
+          await window.fbAdd(window.fbColl(window.db, "produtos"), prod);
+          alert('Produto salvo!');
+        }
+        fecharModalProduto(); carregarProdutos();
+      } catch (e) {
+        tratarErroFirebase(e, 'salvar produto');
       }
-      fecharModalProduto(); carregarProdutos();
     }
 
     async function carregarProdutos() {
+      if (!window.firebasePronto) return;
       const tbody = document.getElementById('tabelaProdutos'); tbody.innerHTML = '';
       try {
         const snap = await window.fbGet(window.fbColl(window.db, "produtos"));
         produtosCache = [];
+        if (snap.empty) { tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Nenhum produto cadastrado.</td></tr>`; return; }
         snap.forEach(d => {
           const p = d.data(); produtosCache.push({ id: d.id, ...p });
           tbody.innerHTML += `
@@ -1046,7 +1098,9 @@
               </td>
             </tr>`;
         });
-      } catch (e) {}
+      } catch (e) {
+        tratarErroFirebase(e, 'carregar produtos');
+      }
     }
 
     // ESTOQUE (NOVO, EDIÇÃO E EXCLUSÃO)
@@ -1055,8 +1109,13 @@
       const select = document.getElementById('estProdSelect'); select.innerHTML = '';
       
       if (produtosCache.length === 0) {
-        const snap = await window.fbGet(window.fbColl(window.db, "produtos"));
-        snap.forEach(d => produtosCache.push({ id: d.id, ...d.data() }));
+        try {
+          const snap = await window.fbGet(window.fbColl(window.db, "produtos"));
+          snap.forEach(d => produtosCache.push({ id: d.id, ...d.data() }));
+        } catch (e) {
+          tratarErroFirebase(e, 'buscar produtos para o estoque');
+          return;
+        }
       }
 
       produtosCache.forEach(p => {
@@ -1097,22 +1156,28 @@
         tipoOuro
       };
 
-      if (id) {
-        await window.fbUpd(window.fbDoc(window.db, "estoque", id), dadosEstoque);
-        alert('Registro do estoque atualizado!');
-      } else {
-        await window.fbAdd(window.fbColl(window.db, "estoque"), dadosEstoque);
-        alert('Estoque atualizado!');
+      try {
+        if (id) {
+          await window.fbUpd(window.fbDoc(window.db, "estoque", id), dadosEstoque);
+          alert('Registro do estoque atualizado!');
+        } else {
+          await window.fbAdd(window.fbColl(window.db, "estoque"), dadosEstoque);
+          alert('Estoque atualizado!');
+        }
+        fecharModalEntradaEstoque(); carregarEstoque();
+      } catch (e) {
+        tratarErroFirebase(e, 'salvar movimentação de estoque');
       }
-      fecharModalEntradaEstoque(); carregarEstoque();
     }
 
     async function carregarEstoque() {
+      if (!window.firebasePronto) return;
       const tbody = document.getElementById('tabelaEstoque'); tbody.innerHTML = '';
       let tp = 0, tpes = 0;
       try {
         const snap = await window.fbGet(window.fbColl(window.db, "estoque"));
         estoqueCache = [];
+        if (snap.empty) { tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma entrada registrada.</td></tr>`; }
         snap.forEach(d => {
           const e = d.data(); estoqueCache.push({ id: d.id, ...e });
           tp += e.qtd; tpes += e.peso;
@@ -1132,7 +1197,9 @@
         document.getElementById('estTotalPecas').innerText = tp;
         document.getElementById('estTotalPeso').innerText = tpes.toFixed(2) + ' g';
         document.getElementById('estTotalEntradas').innerText = snap.size;
-      } catch (e) {}
+      } catch (e) {
+        tratarErroFirebase(e, 'carregar estoque');
+      }
     }
 
     // DECLARAÇÃO DE PROPRIEDADE
@@ -1215,7 +1282,11 @@
         total: document.getElementById('totalValor').value || 'R$ 0,00',
         data: new Date().toLocaleDateString('pt-BR')
       };
-      await window.fbAdd(window.fbColl(window.db, "declaracoes"), dados);
+      try {
+        await window.fbAdd(window.fbColl(window.db, "declaracoes"), dados);
+      } catch (e) {
+        tratarErroFirebase(e, 'salvar histórico da declaração');
+      }
       window.print();
       limparFormularioDeclaracao();
     }
@@ -1223,12 +1294,16 @@
     async function abrirHistoricoDeclaracao() {
       const tbody = document.getElementById('tabelaHistoricoDeclaracao');
       tbody.innerHTML = '';
-      const snap = await window.fbGet(window.fbColl(window.db, "declaracoes"));
-      snap.forEach(d => {
-        const h = d.data();
-        tbody.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-3">${h.num}</td><td class="p-3">${h.vendedorNome}</td><td class="p-3">${h.data}</td><td class="p-3">${h.total}</td></tr>`;
-      });
-      document.getElementById('modalHistoricoDeclaracao').classList.remove('hidden');
+      try {
+        const snap = await window.fbGet(window.fbColl(window.db, "declaracoes"));
+        snap.forEach(d => {
+          const h = d.data();
+          tbody.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-3">${h.num}</td><td class="p-3">${h.vendedorNome}</td><td class="p-3">${h.data}</td><td class="p-3">${h.total}</td></tr>`;
+        });
+        document.getElementById('modalHistoricoDeclaracao').classList.remove('hidden');
+      } catch (e) {
+        tratarErroFirebase(e, 'carregar histórico de declarações');
+      }
     }
     function fecharHistoricoDeclaracao() { document.getElementById('modalHistoricoDeclaracao').classList.add('hidden'); }
 
@@ -1274,7 +1349,11 @@
         cliNome: document.getElementById('cliNome').value || 'Não Informado',
         valorServico: document.getElementById('valorServico').value || 'R$ 0,00'
       };
-      await window.fbAdd(window.fbColl(window.db, "recibos"), recibo);
+      try {
+        await window.fbAdd(window.fbColl(window.db, "recibos"), recibo);
+      } catch (e) {
+        tratarErroFirebase(e, 'salvar histórico do recibo');
+      }
       window.print();
       limparFormularioRecibo();
     }
@@ -1282,12 +1361,16 @@
     async function abrirHistoricoRecibo() {
       const corpo = document.getElementById('corpoHistoricoRecibo');
       corpo.innerHTML = '';
-      const snap = await window.fbGet(window.fbColl(window.db, "recibos"));
-      snap.forEach(d => {
-        const r = d.data();
-        corpo.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-3">${r.num}</td><td class="p-3">${r.data}</td><td class="p-3">${r.cliNome}</td><td class="p-3">${r.valorServico}</td></tr>`;
-      });
-      document.getElementById('modalHistoricoRecibo').classList.remove('hidden');
+      try {
+        const snap = await window.fbGet(window.fbColl(window.db, "recibos"));
+        snap.forEach(d => {
+          const r = d.data();
+          corpo.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-3">${r.num}</td><td class="p-3">${r.data}</td><td class="p-3">${r.cliNome}</td><td class="p-3">${r.valorServico}</td></tr>`;
+        });
+        document.getElementById('modalHistoricoRecibo').classList.remove('hidden');
+      } catch (e) {
+        tratarErroFirebase(e, 'carregar histórico de recibos');
+      }
     }
     function fecharHistoricoRecibo() { document.getElementById('modalHistoricoRecibo').classList.add('hidden'); }
 
@@ -1326,40 +1409,44 @@
       subtitulo.innerText = "D&D INDÚSTRIA E COMÉRCIO DE ROUPAS E ACESSÓRIOS LTDA";
       dataEl.innerText = "Data de emissão: " + new Date().toLocaleDateString('pt-BR');
 
-      const snap = await window.fbGet(window.fbColl(window.db, "clientes"));
-      let html = `<table class="w-full text-left border-collapse border border-slate-300 text-xs">
-        <thead>
-          <tr class="bg-slate-100">
-            <th class="border p-2">Código</th>
-            <th class="border p-2">Nome / Razão Social</th>
-            <th class="border p-2">CPF / CNPJ</th>
-            <th class="border p-2">E-mail</th>
-            <th class="border p-2">Telefone</th>
-            <th class="border p-2">Endereço</th>
-          </tr>
-        </thead>
-        <tbody>`;
+      try {
+        const snap = await window.fbGet(window.fbColl(window.db, "clientes"));
+        let html = `<table class="w-full text-left border-collapse border border-slate-300 text-xs">
+          <thead>
+            <tr class="bg-slate-100">
+              <th class="border p-2">Código</th>
+              <th class="border p-2">Nome / Razão Social</th>
+              <th class="border p-2">CPF / CNPJ</th>
+              <th class="border p-2">E-mail</th>
+              <th class="border p-2">Telefone</th>
+              <th class="border p-2">Endereço</th>
+            </tr>
+          </thead>
+          <tbody>`;
 
-      if (snap.empty) {
-        html += `<tr><td colspan="6" class="border p-4 text-center">Nenhum cliente cadastrado.</td></tr>`;
-      } else {
-        snap.forEach(d => {
-          const c = d.data();
-          html += `<tr>
-            <td class="border p-2 font-semibold">${c.codigo}</td>
-            <td class="border p-2">${c.nome}</td>
-            <td class="border p-2">${c.cpfCnpj}</td>
-            <td class="border p-2">${c.email || '-'}</td>
-            <td class="border p-2">${c.telefone || '-'}</td>
-            <td class="border p-2">${c.endereco || ''} ${c.cidade ? `(${c.cidade}/${c.estado})` : ''}</td>
-          </tr>`;
-        });
+        if (snap.empty) {
+          html += `<tr><td colspan="6" class="border p-4 text-center">Nenhum cliente cadastrado.</td></tr>`;
+        } else {
+          snap.forEach(d => {
+            const c = d.data();
+            html += `<tr>
+              <td class="border p-2 font-semibold">${c.codigo}</td>
+              <td class="border p-2">${c.nome}</td>
+              <td class="border p-2">${c.cpfCnpj}</td>
+              <td class="border p-2">${c.email || '-'}</td>
+              <td class="border p-2">${c.telefone || '-'}</td>
+              <td class="border p-2">${c.endereco || ''} ${c.cidade ? `(${c.cidade}/${c.estado})` : ''}</td>
+            </tr>`;
+          });
+        }
+
+        html += `</tbody></table>`;
+        conteud.innerHTML = html;
+        area.classList.remove('hidden');
+        window.print();
+      } catch (e) {
+        tratarErroFirebase(e, 'gerar relatório de clientes');
       }
-
-      html += `</tbody></table>`;
-      conteud.innerHTML = html;
-      area.classList.remove('hidden');
-      window.print();
     }
 
     async function gerarEImprimirRelatorioEstoque() {
@@ -1385,63 +1472,67 @@
       subtitulo.innerText = periodoTxt;
       dataEl.innerText = "Data de emissão: " + new Date().toLocaleDateString('pt-BR');
 
-      const snap = await window.fbGet(window.fbColl(window.db, "estoque"));
-      let html = `<table class="w-full text-left border-collapse border border-slate-300 text-xs">
-        <thead>
-          <tr class="bg-slate-100">
-            <th class="border p-2">Data Entrada</th>
-            <th class="border p-2">Descrição do Produto</th>
-            <th class="border p-2">Quantidade</th>
-            <th class="border p-2">Peso Total (g)</th>
-            <th class="border p-2">Tipo de Ouro</th>
-          </tr>
-        </thead>
-        <tbody>`;
+      try {
+        const snap = await window.fbGet(window.fbColl(window.db, "estoque"));
+        let html = `<table class="w-full text-left border-collapse border border-slate-300 text-xs">
+          <thead>
+            <tr class="bg-slate-100">
+              <th class="border p-2">Data Entrada</th>
+              <th class="border p-2">Descrição do Produto</th>
+              <th class="border p-2">Quantidade</th>
+              <th class="border p-2">Peso Total (g)</th>
+              <th class="border p-2">Tipo de Ouro</th>
+            </tr>
+          </thead>
+          <tbody>`;
 
-      let totalPecas = 0;
-      let totalPeso = 0;
-      let registrosEncontrados = 0;
+        let totalPecas = 0;
+        let totalPeso = 0;
+        let registrosEncontrados = 0;
 
-      snap.forEach(d => {
-        const e = d.data();
-        const itemDataISO = e.dataISO || converterDataBrParaISO(e.data);
+        snap.forEach(d => {
+          const e = d.data();
+          const itemDataISO = e.dataISO || converterDataBrParaISO(e.data);
 
-        let dentroDoPeriodo = true;
-        if (dtInicio && itemDataISO < dtInicio) dentroDoPeriodo = false;
-        if (dtFim && itemDataISO > dtFim) dentroDoPeriodo = false;
+          let dentroDoPeriodo = true;
+          if (dtInicio && itemDataISO < dtInicio) dentroDoPeriodo = false;
+          if (dtFim && itemDataISO > dtFim) dentroDoPeriodo = false;
 
-        if (dentroDoPeriodo) {
-          registrosEncontrados++;
-          totalPecas += e.qtd;
-          totalPeso += e.peso;
-          html += `<tr>
-            <td class="border p-2">${e.data}</td>
-            <td class="border p-2 font-medium">${e.descricao}</td>
-            <td class="border p-2">${e.qtd}</td>
-            <td class="border p-2">${e.peso.toFixed(2)} g</td>
-            <td class="border p-2">${e.tipoOuro}</td>
-          </tr>`;
+          if (dentroDoPeriodo) {
+            registrosEncontrados++;
+            totalPecas += e.qtd;
+            totalPeso += e.peso;
+            html += `<tr>
+              <td class="border p-2">${e.data}</td>
+              <td class="border p-2 font-medium">${e.descricao}</td>
+              <td class="border p-2">${e.qtd}</td>
+              <td class="border p-2">${e.peso.toFixed(2)} g</td>
+              <td class="border p-2">${e.tipoOuro}</td>
+            </tr>`;
+          }
+        });
+
+        if (registrosEncontrados === 0) {
+          html += `<tr><td colspan="5" class="border p-4 text-center">Nenhum registro encontrado para o período selecionado.</td></tr>`;
         }
-      });
 
-      if (registrosEncontrados === 0) {
-        html += `<tr><td colspan="5" class="border p-4 text-center">Nenhum registro encontrado para o período selecionado.</td></tr>`;
+        html += `</tbody>
+          <tfoot>
+            <tr class="bg-slate-200 font-bold">
+              <td colspan="2" class="border p-2 text-right">TOTAL DO PERÍODO:</td>
+              <td class="border p-2">${totalPecas}</td>
+              <td class="border p-2">${totalPeso.toFixed(2)} g</td>
+              <td class="border p-2">--</td>
+            </tr>
+          </tfoot>
+        </table>`;
+
+        conteud.innerHTML = html;
+        area.classList.remove('hidden');
+        window.print();
+      } catch (e) {
+        tratarErroFirebase(e, 'gerar relatório de estoque');
       }
-
-      html += `</tbody>
-        <tfoot>
-          <tr class="bg-slate-200 font-bold">
-            <td colspan="2" class="border p-2 text-right">TOTAL DO PERÍODO:</td>
-            <td class="border p-2">${totalPecas}</td>
-            <td class="border p-2">${totalPeso.toFixed(2)} g</td>
-            <td class="border p-2">--</td>
-          </tr>
-        </tfoot>
-      </table>`;
-
-      conteud.innerHTML = html;
-      area.classList.remove('hidden');
-      window.print();
     }
 
     // USUÁRIOS & PERMISSÕES
@@ -1471,20 +1562,25 @@
       const permissoes = [];
       document.querySelectorAll('.perm-menu:checked').forEach(chk => permissoes.push(chk.value));
 
-      if (id) {
-        let dados = { nome, cpf, permissoes };
-        if (senha) dados.senha = senha;
-        await window.fbUpd(window.fbDoc(window.db, "usuarios", id), dados);
-        alert('Usuário atualizado com sucesso!');
-      } else {
-        if (!senha) { alert('Informe a senha para o novo usuário.'); return; }
-        await window.fbAdd(window.fbColl(window.db, "usuarios"), { nome, cpf, senha, permissoes });
-        alert('Usuário cadastrado com sucesso!');
+      try {
+        if (id) {
+          let dados = { nome, cpf, permissoes };
+          if (senha) dados.senha = senha;
+          await window.fbUpd(window.fbDoc(window.db, "usuarios", id), dados);
+          alert('Usuário atualizado com sucesso!');
+        } else {
+          if (!senha) { alert('Informe a senha para o novo usuário.'); return; }
+          await window.fbAdd(window.fbColl(window.db, "usuarios"), { nome, cpf, senha, permissoes });
+          alert('Usuário cadastrado com sucesso!');
+        }
+        fecharModalUsuario(); carregarUsuarios();
+      } catch (e) {
+        tratarErroFirebase(e, 'salvar usuário');
       }
-      fecharModalUsuario(); carregarUsuarios();
     }
 
     async function carregarUsuarios() {
+      if (!window.firebasePronto) return;
       const tbody = document.getElementById('tabelaUsuarios'); tbody.innerHTML = '';
       try {
         const snap = await window.fbGet(window.fbColl(window.db, "usuarios"));
@@ -1503,7 +1599,9 @@
               </td>
             </tr>`;
         });
-      } catch (e) {}
+      } catch (e) {
+        tratarErroFirebase(e, 'carregar usuários');
+      }
     }
 
     function abrirTrocarSenhaUser(id) {
@@ -1517,9 +1615,13 @@
       const novaSenha = document.getElementById('novaSenhaColaborador').value.trim();
       if (!novaSenha) { alert('Digite a nova senha.'); return; }
       
-      await window.fbUpd(window.fbDoc(window.db, "usuarios", id), { senha: novaSenha });
-      alert('Senha alterada com sucesso!');
-      document.getElementById('modalTrocarSenhaUser').classList.add('hidden');
+      try {
+        await window.fbUpd(window.fbDoc(window.db, "usuarios", id), { senha: novaSenha });
+        alert('Senha alterada com sucesso!');
+        document.getElementById('modalTrocarSenhaUser').classList.add('hidden');
+      } catch (e) {
+        tratarErroFirebase(e, 'alterar senha do usuário');
+      }
     }
 
     function abrirModalAdminSenha() {
@@ -1538,11 +1640,15 @@
     // EXCLUSÃO
     async function excluirRegistro(coluna, id) {
       if (confirm('Deseja excluir este item da nuvem?')) {
-        await window.fbDel(window.fbDoc(window.db, coluna, id));
-        if (coluna === 'clientes') carregarClientes();
-        if (coluna === 'produtos') carregarProdutos();
-        if (coluna === 'estoque') carregarEstoque();
-        if (coluna === 'usuarios') carregarUsuarios();
+        try {
+          await window.fbDel(window.fbDoc(window.db, coluna, id));
+          if (coluna === 'clientes') carregarClientes();
+          if (coluna === 'produtos') carregarProdutos();
+          if (coluna === 'estoque') carregarEstoque();
+          if (coluna === 'usuarios') carregarUsuarios();
+        } catch (e) {
+          tratarErroFirebase(e, 'excluir registro');
+        }
       }
     }
   </script>
